@@ -20,6 +20,7 @@
 /docker/
 /.devcontainer/
 /.vscode/
+/.idea/
 /.ignore/
 **/phpinfo.php
 ###< local environment ###
