@@ -14,3 +14,13 @@
 !var/SymfonyRequirements.php
 /vendor/
 /web/bundles/
+
+###> local environment ###
+/.docker/
+/docker/
+/.devcontainer/
+/.vscode/
+/.idea/
+/.ignore/
+**/phpinfo.php
+###< local environment ###
