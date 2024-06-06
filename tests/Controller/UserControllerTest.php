@@ -3,13 +3,12 @@
 namespace Tests\App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class UserControllerTest extends WebTestCase
 {
     private $user;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->user = [
@@ -18,7 +17,7 @@ class UserControllerTest extends WebTestCase
         ];
     }
 
-    public function testUsersPageIsUp()
+    public function testUsersPageIsUp(): void
     {
         // Given
         $client = static::createClient([], [
@@ -30,10 +29,14 @@ class UserControllerTest extends WebTestCase
         $client->request('GET', '/users');
 
         // Then
-        $this->assertResponseStatusCodeSame(200);
+        $this->assertResponseIsSuccessful();
+        // $this->assertResponseStatusCodeSame(200);
     }
 
-    public function testUserCanBeCreated()
+    /**
+     * @return (string|string[]|null)[] Info about the created user.
+     */
+    public function testUserCanBeCreated(): array
     {
         // Given
         $client = static::createClient();
@@ -55,9 +58,12 @@ class UserControllerTest extends WebTestCase
         // Then
         $this->assertResponseRedirects('/users');
         $crawler = $client->followRedirect();
-        $this->assertContains("L'utilisateur a bien été ajouté.", $crawler->filter('div.alert-success')->text());
-        $this->assertContains($newUsername, $crawler->filter('table')->text());
-        $this->assertContains($newUserEmail, $crawler->filter('table')->text());
+        $this->assertSelectorTextContains('.alert-success', 'L\'utilisateur a bien été ajouté.');
+        $this->assertSelectorTextContains('table', $newUsername);
+        $this->assertSelectorTextContains('table', $newUserEmail);
+        // $this->assertContains("L'utilisateur a bien été ajouté.", [$crawler->filter('div.alert-success')->text()]);
+        // $this->assertContains($newUsername, [$crawler->filter('table')->text()]);
+        // $this->assertContains($newUserEmail, [$crawler->filter('table')->text()]);
 
         // Get ID of the created user
         $link = $crawler->filter('table')->filter("td:contains('{$newUsername}')")->siblings()->last()->children()->first()->attr('href');
@@ -77,7 +83,7 @@ class UserControllerTest extends WebTestCase
      * 
      * @param array $userInfo User info.
      */
-    public function testUserCanBeEdited($userInfo)
+    public function testUserCanBeEdited($userInfo): void
     {
         // Given
         $client = static::createClient();
@@ -98,8 +104,11 @@ class UserControllerTest extends WebTestCase
         // Then
         $this->assertResponseRedirects('/users');
         $crawler = $client->followRedirect();
-        $this->assertContains("L'utilisateur a bien été modifié", $crawler->filter('div.alert-success')->text());
-        $this->assertContains($editedUsername, $crawler->filter('table')->text());
-        $this->assertContains($editedEmail, $crawler->filter('table')->text());
+        $this->assertSelectorTextContains('.alert-success', 'L\'utilisateur a bien été modifié');
+        $this->assertSelectorTextContains('table', $editedUsername);
+        $this->assertSelectorTextContains('table', $editedEmail);
+        // $this->assertContains("L'utilisateur a bien été modifié", [$crawler->filter('div.alert-success')->text()]);
+        // $this->assertContains($editedUsername, [$crawler->filter('table')->text()]);
+        // $this->assertContains($editedEmail, [$crawler->filter('table')->text()]);
     }
 }

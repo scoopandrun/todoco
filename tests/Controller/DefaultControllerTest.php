@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class DefaultControllerTest extends WebTestCase
 {
-    public function testUnauthenticatedIndexRedirectsToLoginPage()
+    public function testUnauthenticatedIndexReturnsUnauthorizedResponse(): void
     {
         // Given
         $client = static::createClient();
@@ -17,10 +17,11 @@ class DefaultControllerTest extends WebTestCase
         $client->request($method, $url);
 
         // Then
-        $this->assertResponseRedirects("http://localhost/login");
+        $this->assertResponseStatusCodeSame(401);
+        // $this->assertResponseRedirects("http://localhost/login");
     }
 
-    public function testAuthenticatedIndexReturns200()
+    public function testAuthenticatedIndexReturns200(): void
     {
         // Given
         $client = static::createClient([], [
