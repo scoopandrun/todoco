@@ -21,7 +21,7 @@ composer.lock: composer.json
 db:
 	php bin/console doctrine:database:drop --force --if-exists
 	php bin/console doctrine:database:create
-	php bin/console doctrine:schema:update --force
+	php bin/console doctrine:migrations:migrate --no-interaction
 ifeq ($(FIXTURES),1)
 	php bin/console doctrine:fixtures:load --no-interaction
 endif
