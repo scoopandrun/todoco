@@ -48,4 +48,3 @@ clean:
 	rm -rf var/cache/*
 	rm -rf var/logs/*
 	rm -rf vendor
-	
