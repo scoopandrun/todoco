@@ -17,7 +17,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class UserController extends AbstractController
 {
     /**
-     * @Route("", name=".list")
+     * @Route("", name=".list", methods={"GET"})
      */
     public function list(EntityManagerInterface $entityManager)
     {
@@ -53,7 +53,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name=".edit")
+     * @Route("/{id}/edit", name=".edit", methods={"GET", "POST"})
      */
     public function edit(
         User $user,
@@ -65,7 +65,6 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // $password = $this->get('security.password_encoder')->encodePassword($user, $user->getPassword());
             $user->setPassword($passwordEncoder->encodePassword($user, $user->getPassword()));
 
             $em->flush();

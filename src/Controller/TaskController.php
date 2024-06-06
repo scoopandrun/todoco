@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class TaskController extends AbstractController
 {
     /**
-     * @Route("", name=".list")
+     * @Route("", name=".list", methods={"GET"})
      */
     public function list(EntityManagerInterface $entityManager): Response
     {
@@ -25,7 +25,7 @@ class TaskController extends AbstractController
     }
 
     /**
-     * @Route("/create", name=".create")
+     * @Route("/create", name=".create", methods={"GET", "POST"})
      */
     public function create(Request $request, EntityManagerInterface $em)
     {
@@ -47,7 +47,7 @@ class TaskController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name=".edit")
+     * @Route("/{id}/edit", name=".edit", methods={"GET", "POST"})
      */
     public function edit(Task $task, Request $request, EntityManagerInterface $em)
     {
@@ -69,7 +69,7 @@ class TaskController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/toggle", name=".toggle")
+     * @Route("/{id}/toggle", name=".toggle", methods={"GET"})
      */
     public function toggle(Task $task)
     {
@@ -82,7 +82,7 @@ class TaskController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/delete", name=".delete")
+     * @Route("/{id}/delete", name=".delete", methods={"GET"})
      */
     public function delete(Task $task)
     {

@@ -20,11 +20,6 @@
 ###< symfony/phpunit-bridge ###
 
 ###> local environment ###
-/.docker/
 /docker/
-/.devcontainer/
-/.vscode/
-/.idea/
-/.ignore/
 **/phpinfo.php
 ###< local environment ###
