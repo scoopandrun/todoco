@@ -20,6 +20,23 @@ class SecurityControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(200);
     }
 
+    public function testAuthenticatedAccessToLoginPageRedirectsToHomepage(): void
+    {
+        // Given
+        $client = static::createClient([], [
+            'PHP_AUTH_USER' => 'User1',
+            'PHP_AUTH_PW' => 'pass123',
+        ]);
+        $method = 'GET';
+        $url = '/login';
+
+        // When
+        $client->request($method, $url);
+
+        // Then
+        $this->assertResponseRedirects('/');
+    }
+
     public function testLoginWithInvalidCredentials(): void
     {
         // Given

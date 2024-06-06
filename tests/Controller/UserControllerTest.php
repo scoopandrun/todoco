@@ -2,6 +2,7 @@
 
 namespace Tests\App\Controller;
 
+use PHPUnit\Framework\Attributes\Depends;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class UserControllerTest extends WebTestCase
@@ -75,11 +76,10 @@ class UserControllerTest extends WebTestCase
     }
 
     /**
-     * @depends testUserCanBeCreated
-     * 
      * @param array $userInfo User info.
      */
-    public function testUserCanBeEdited($userInfo): void
+    #[Depends('testUserCanBeCreated')]
+    public function testUserCanBeEdited(array $userInfo): void
     {
         // Given
         $client = static::createClient();

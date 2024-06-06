@@ -2,6 +2,7 @@
 
 namespace Tests\App\Controller;
 
+use PHPUnit\Framework\Attributes\Depends;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class TaskControllerTest extends WebTestCase
@@ -82,11 +83,10 @@ class TaskControllerTest extends WebTestCase
     }
 
     /**
-     * @depends testTaskCanBeCreated
-     * 
      * @param array $taskInfo Info of the task to edit.
      */
-    public function testTaskCanBeEdited($taskInfo): void
+    #[Depends('testTaskCanBeCreated')]
+    public function testTaskCanBeEdited(array $taskInfo): void
     {
         // Given
         $client = static::createClient([], [
@@ -115,11 +115,10 @@ class TaskControllerTest extends WebTestCase
     }
 
     /**
-     * @depends testTaskCanBeCreated
-     * 
      * @param array $taskId Info of the task to toggle.
      */
-    public function testTaskCanBeToggledDone($taskInfo): void
+    #[Depends('testTaskCanBeCreated')]
+    public function testTaskCanBeToggledDone(array $taskInfo): void
     {
         // Given
         $client = static::createClient([], [
@@ -150,11 +149,10 @@ class TaskControllerTest extends WebTestCase
     }
 
     /**
-     * @depends testTaskCanBeCreated
-     * 
      * @param array $taskId Info of the task to toggle.
      */
-    public function testTaskCanBeToggledUndone($taskInfo): void
+    #[Depends('testTaskCanBeCreated')]
+    public function testTaskCanBeToggledUndone(array $taskInfo): void
     {
         // Given
         $client = static::createClient([], [
@@ -185,11 +183,10 @@ class TaskControllerTest extends WebTestCase
     }
 
     /**
-     * @depends testTaskCanBeCreated
-     * 
      * @param array $taskId Info of the task to delete.
      */
-    public function testTaskCanBeDeleted($taskInfo): void
+    #[Depends('testTaskCanBeCreated')]
+    public function testTaskCanBeDeleted(array $taskInfo): void
     {
         // Given
         $client = static::createClient([], [
