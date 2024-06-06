@@ -66,7 +66,7 @@ class TaskControllerTest extends WebTestCase
         // Then
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
-        $this->assertSelectorTextContains('.alert-success', 'La tâche a été bien été ajoutée.');
+        $this->assertSelectorTextContains('.alert-success', 'La tâche a bien été ajoutée.');
         $this->assertSelectorTextContains('body', $taskTitle);
         $this->assertSelectorTextContains('body', $taskContent);
 
