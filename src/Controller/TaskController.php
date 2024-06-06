@@ -27,7 +27,7 @@ class TaskController extends AbstractController
     /**
      * @Route("/create", name=".create", methods={"GET", "POST"})
      */
-    public function create(Request $request, EntityManagerInterface $em)
+    public function create(Request $request, EntityManagerInterface $em): Response
     {
         $task = new Task();
 
@@ -49,7 +49,7 @@ class TaskController extends AbstractController
     /**
      * @Route("/{id}/edit", name=".edit", methods={"GET", "POST"})
      */
-    public function edit(Task $task, Request $request, EntityManagerInterface $em)
+    public function edit(Task $task, Request $request, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(TaskType::class, $task);
         $form->handleRequest($request);
@@ -71,7 +71,7 @@ class TaskController extends AbstractController
     /**
      * @Route("/{id}/toggle", name=".toggle", methods={"GET"})
      */
-    public function toggle(Task $task)
+    public function toggle(Task $task): Response
     {
         $task->toggle(!$task->isDone());
         $this->getDoctrine()->getManager()->flush();
@@ -84,7 +84,7 @@ class TaskController extends AbstractController
     /**
      * @Route("/{id}/delete", name=".delete", methods={"GET"})
      */
-    public function delete(Task $task)
+    public function delete(Task $task): Response
     {
         $em = $this->getDoctrine()->getManager();
         $em->remove($task);

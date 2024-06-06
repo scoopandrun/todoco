@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -19,7 +20,7 @@ class UserController extends AbstractController
     /**
      * @Route("", name=".list", methods={"GET"})
      */
-    public function list(EntityManagerInterface $entityManager)
+    public function list(EntityManagerInterface $entityManager): Response
     {
         $users = $entityManager->getRepository(User::class)->findAll();
         return $this->render('user/list.html.twig', ['users' => $users]);
@@ -32,7 +33,7 @@ class UserController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         UserPasswordEncoderInterface $passwordEncoder
-    ) {
+    ): Response {
         $user = new User();
 
         $form = $this->createForm(UserType::class, $user);
@@ -60,7 +61,7 @@ class UserController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         UserPasswordEncoderInterface $passwordEncoder
-    ) {
+    ): Response {
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
