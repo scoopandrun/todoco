@@ -9,12 +9,12 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<Task>
  *
- * @method Difficulty|null find($id, $lockMode = null, $lockVersion = null)
- * @method Difficulty|null findOneBy(array $criteria, array $orderBy = null)
- * @method Difficulty[]    findAll()
- * @method Difficulty[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Task|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Task|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Task[]    findAll()
+ * @method Task[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class DifficultyRepository extends ServiceEntityRepository
+class TaskRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
