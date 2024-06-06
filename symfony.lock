@@ -10,16 +10,15 @@
         "files": []
     },
     "doctrine/doctrine-bundle": {
-        "version": "1.12",
+        "version": "2.12",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "1.12",
-            "ref": "d6ef6ae99dbd6f70ca244db45af1cd6650c28a5d"
+            "version": "2.10",
+            "ref": "c170ded8fc587d6bd670550c43dafcf093762245"
         },
         "files": [
             "config/packages/doctrine.yaml",
-            "config/packages/prod/doctrine.yaml",
             "src/Entity/.gitignore",
             "src/Repository/.gitignore"
         ]
