@@ -9,7 +9,7 @@ This repository is primarily a way of sharing code with the tutor.
 
 ## Installation
 
-This project uses [Composer](https://getcomposer.org) with PHP `>= 5.6 && < 7.0`.
+This project uses [Composer](https://getcomposer.org) with PHP `^7.4`.
 
 Configure your database and email server in `/app/config/parameters.yml`.
 
