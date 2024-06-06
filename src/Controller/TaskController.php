@@ -27,7 +27,7 @@ class TaskController extends AbstractController
     /**
      * @Route("/create", name=".create", methods={"GET", "POST"})
      */
-    public function create(Request $request, EntityManagerInterface $em): Response
+    public function create(Request $request, EntityManagerInterface $entityManager): Response
     {
         $task = new Task();
 
@@ -35,8 +35,8 @@ class TaskController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->persist($task);
-            $em->flush();
+            $entityManager->persist($task);
+            $entityManager->flush();
 
             $this->addFlash('success', 'La tâche a été bien été ajoutée.');
 
@@ -49,13 +49,13 @@ class TaskController extends AbstractController
     /**
      * @Route("/{id}/edit", name=".edit", methods={"GET", "POST"})
      */
-    public function edit(Task $task, Request $request, EntityManagerInterface $em): Response
+    public function edit(Task $task, Request $request, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(TaskType::class, $task);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
+            $entityManager->flush();
 
             $this->addFlash('success', 'La tâche a bien été modifiée.');
 
@@ -71,10 +71,10 @@ class TaskController extends AbstractController
     /**
      * @Route("/{id}/toggle", name=".toggle", methods={"GET"})
      */
-    public function toggle(Task $task): Response
+    public function toggle(Task $task, EntityManagerInterface $entityManager): Response
     {
         $task->toggle(!$task->isDone());
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
 
@@ -84,11 +84,10 @@ class TaskController extends AbstractController
     /**
      * @Route("/{id}/delete", name=".delete", methods={"GET"})
      */
-    public function delete(Task $task): Response
+    public function delete(Task $task, EntityManagerInterface $entityManager): Response
     {
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($task);
-        $em->flush();
+        $entityManager->remove($task);
+        $entityManager->flush();
 
         $this->addFlash('success', 'La tâche a bien été supprimée.');
 
