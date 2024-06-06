@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class SecurityControllerTest extends WebTestCase
 {
-    public function testLoginPageReturns200()
+    public function testLoginPageReturns200(): void
     {
         // Given
         $client = static::createClient();
@@ -20,13 +20,13 @@ class SecurityControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(200);
     }
 
-    public function testLoginWithInvalidCredentials()
+    public function testLoginWithInvalidCredentials(): void
     {
         // Given
         $client = static::createClient();
         $client->followRedirects();
         $method = 'GET';
-        $url = '/';
+        $url = '/login';
         $username = 'admin';
         $password = 'invalid';
 
@@ -38,17 +38,18 @@ class SecurityControllerTest extends WebTestCase
         $crawler = $client->submit($form);
 
         // Then
-        $this->assertTrue($crawler->filter('.alert-danger')->count() > 0);
-        $this->assertContains('Invalid credentials.', $crawler->html());
+        $this->assertSelectorTextContains('.alert-danger', 'Invalid credentials.');
+        // $this->assertTrue($crawler->filter('.alert-danger')->count() > 0);
+        // $this->assertContains('Invalid credentials.', [$crawler->html()]);
     }
 
-    public function testLoginWithValidCredentials()
+    public function testLoginWithValidCredentials(): void
     {
         // Given
         $client = static::createClient();
         $client->followRedirects();
         $method = 'GET';
-        $url = '/';
+        $url = '/login';
         $username = 'User1';
         $password = 'pass123';
 
@@ -60,6 +61,7 @@ class SecurityControllerTest extends WebTestCase
         $crawler = $client->submit($form);
 
         // Then
-        $this->assertContains('Bienvenue sur Todo List', $crawler->html());
+        $this->assertSelectorTextContains('h1', 'Bienvenue sur Todo List');
+        // $this->assertContains('Bienvenue sur Todo List', [$crawler->html()]);
     }
 }

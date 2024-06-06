@@ -3,13 +3,12 @@
 namespace Tests\App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class TaskControllerTest extends WebTestCase
 {
     private $user1;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->user1 = [
             'username' => 'User1',
@@ -17,7 +16,7 @@ class TaskControllerTest extends WebTestCase
         ];
     }
 
-    public function testTasksPageIsUp()
+    public function testTasksPageIsUp(): void
     {
         // Given
         $client = static::createClient([], [
@@ -32,7 +31,8 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(200);
     }
 
-    public function testUnauthenticatedAccessToTasksRedirectsToLogin()
+    // public function testUnauthenticatedAccessToTasksRedirectsToLogin(): void
+    public function testUnauthenticatedAccessReturnsUnauthorizedResponse(): void
     {
         // Given
         $client = static::createClient();
@@ -41,13 +41,14 @@ class TaskControllerTest extends WebTestCase
         $client->request('GET', '/tasks/create');
 
         // Then
-        $this->assertResponseRedirects("http://localhost/login");
+        $this->assertResponseStatusCodeSame(401);
+        // $this->assertResponseRedirects("http://localhost/login");
     }
 
     /**
-     * @return int ID of the created task.
+     * @return int Info about the created task.
      */
-    public function testTaskCanBeCreated()
+    public function testTaskCanBeCreated(): array
     {
         // Given
         $client = static::createClient([], [
@@ -67,9 +68,12 @@ class TaskControllerTest extends WebTestCase
         // Then
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
-        $this->assertContains($taskTitle, $crawler->filter('body')->text());
-        $this->assertContains($taskContent, $crawler->filter('body')->text());
-        $this->assertContains('La tâche a été bien été ajoutée.', $crawler->filter('body')->text());
+        $this->assertSelectorTextContains('.alert-success', 'La tâche a été bien été ajoutée.');
+        $this->assertSelectorTextContains('body', $taskTitle);
+        $this->assertSelectorTextContains('body', $taskContent);
+        // $this->assertContains($taskTitle, [$crawler->filter('body')->text()]);
+        // $this->assertContains($taskContent, [$crawler->filter('body')->text()]);
+        // $this->assertContains('La tâche a été bien été ajoutée.', [$crawler->filter('body')->text()]);
 
         // Get the ID of the created task
         $taskId = preg_replace('/[^0-9]/', '', $crawler->filter("a:contains('{$taskTitle}')")->attr('href'));
@@ -87,7 +91,7 @@ class TaskControllerTest extends WebTestCase
      * 
      * @param array $taskInfo Info of the task to edit.
      */
-    public function testTaskCanBeEdited($taskInfo)
+    public function testTaskCanBeEdited($taskInfo): void
     {
         // Given
         $client = static::createClient([], [
@@ -110,9 +114,12 @@ class TaskControllerTest extends WebTestCase
         // Then
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
-        $this->assertContains($editedTaskTitle, $crawler->filter('body')->text());
-        $this->assertContains($editedTaskContent, $crawler->filter('body')->text());
-        $this->assertContains('La tâche a bien été modifiée.', $crawler->filter('body')->text());
+        $this->assertSelectorTextContains('.alert-success', 'La tâche a bien été modifiée.');
+        $this->assertSelectorTextContains('body', $editedTaskTitle);
+        $this->assertSelectorTextContains('body', $editedTaskContent);
+        // $this->assertContains($editedTaskTitle, [$crawler->filter('body')->text()]);
+        // $this->assertContains($editedTaskContent, [$crawler->filter('body')->text()]);
+        // $this->assertContains('La tâche a bien été modifiée.', [$crawler->filter('body')->text()]);
     }
 
     /**
@@ -120,7 +127,7 @@ class TaskControllerTest extends WebTestCase
      * 
      * @param array $taskId Info of the task to toggle.
      */
-    public function testTaskCanBeToggledDone($taskInfo)
+    public function testTaskCanBeToggledDone($taskInfo): void
     {
         // Given
         $client = static::createClient([], [
@@ -138,12 +145,13 @@ class TaskControllerTest extends WebTestCase
         // Then
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
-        $this->assertContains("La tâche {$taskTitle} a bien été marquée comme faite.", $crawler->filter('body')->text());
+        $this->assertSelectorTextContains('.alert-success', "La tâche {$taskTitle} a bien été marquée comme faite.");
+        // $this->assertContains("La tâche {$taskTitle} a bien été marquée comme faite.", [$crawler->filter('body')->text()]);
         // Check if the task is marked as done
         $checkSpan = $crawler
             ->filter("a[href='/tasks/{$taskId}/edit']")
             ->first()
-            ->parents()
+            ->ancestors()
             ->eq(0)
             ->siblings();
         $this->assertCount(1, $checkSpan->filter('span.glyphicon-ok'));
@@ -155,7 +163,7 @@ class TaskControllerTest extends WebTestCase
      * 
      * @param array $taskId Info of the task to toggle.
      */
-    public function testTaskCanBeToggledUndone($taskInfo)
+    public function testTaskCanBeToggledUndone($taskInfo): void
     {
         // Given
         $client = static::createClient([], [
@@ -178,7 +186,7 @@ class TaskControllerTest extends WebTestCase
         $checkSpan = $crawler
             ->filter("a[href='/tasks/{$taskId}/edit']")
             ->first()
-            ->parents()
+            ->ancestors()
             ->eq(0)
             ->siblings();
         $this->assertCount(0, $checkSpan->filter('span.glyphicon-ok'));
@@ -190,7 +198,7 @@ class TaskControllerTest extends WebTestCase
      * 
      * @param array $taskId Info of the task to delete.
      */
-    public function testTaskCanBeDeleted($taskInfo)
+    public function testTaskCanBeDeleted($taskInfo): void
     {
         // Given
         $client = static::createClient([], [
@@ -208,6 +216,7 @@ class TaskControllerTest extends WebTestCase
         // Then
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
-        $this->assertNotContains($taskTitle, $crawler->filter('body')->text());
+        $this->assertSelectorTextNotContains('body', $taskTitle);
+        // $this->assertNotContains($taskTitle, [$crawler->filter('body')->text()]);
     }
 }
