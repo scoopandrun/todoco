@@ -1,4 +1,4 @@
-# ToDo & Co
+# ToDo-List (ToDo & Co)
 
 [![SymfonyInsight](https://insight.symfony.com/projects/5745b6bc-f698-4abe-9618-404d1da53406/big.svg)](https://insight.symfony.com/projects/5745b6bc-f698-4abe-9618-404d1da53406)
 
