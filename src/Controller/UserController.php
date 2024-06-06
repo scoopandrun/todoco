@@ -9,25 +9,19 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @Route("/users", name="user")
- */
+#[Route('/users', name: 'user')]
 class UserController extends AbstractController
 {
-    /**
-     * @Route("", name=".list", methods={"GET"})
-     */
+    #[Route(path: '', name: '.list', methods: ['GET'])]
     public function list(EntityManagerInterface $entityManager): Response
     {
         $users = $entityManager->getRepository(User::class)->findAll();
         return $this->render('user/list.html.twig', ['users' => $users]);
     }
 
-    /**
-     * @Route("/create", name=".create", methods={"GET", "POST"})
-     */
+    #[Route(path: '/create', name: '.create', methods: ['GET', 'POST'])]
     public function create(
         Request $request,
         EntityManagerInterface $em,
@@ -52,9 +46,7 @@ class UserController extends AbstractController
         return $this->render('user/create.html.twig', ['form' => $form->createView()]);
     }
 
-    /**
-     * @Route("/{id}/edit", name=".edit", methods={"GET", "POST"})
-     */
+    #[Route(path: '/{id}/edit', name: '.edit', methods: ['GET', 'POST'])]
     public function edit(
         User $user,
         Request $request,

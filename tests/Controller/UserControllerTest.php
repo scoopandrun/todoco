@@ -30,7 +30,6 @@ class UserControllerTest extends WebTestCase
 
         // Then
         $this->assertResponseIsSuccessful();
-        // $this->assertResponseStatusCodeSame(200);
     }
 
     /**
@@ -61,9 +60,6 @@ class UserControllerTest extends WebTestCase
         $this->assertSelectorTextContains('.alert-success', 'L\'utilisateur a bien été ajouté.');
         $this->assertSelectorTextContains('table', $newUsername);
         $this->assertSelectorTextContains('table', $newUserEmail);
-        // $this->assertContains("L'utilisateur a bien été ajouté.", [$crawler->filter('div.alert-success')->text()]);
-        // $this->assertContains($newUsername, [$crawler->filter('table')->text()]);
-        // $this->assertContains($newUserEmail, [$crawler->filter('table')->text()]);
 
         // Get ID of the created user
         $link = $crawler->filter('table')->filter("td:contains('{$newUsername}')")->siblings()->last()->children()->first()->attr('href');
@@ -107,8 +103,5 @@ class UserControllerTest extends WebTestCase
         $this->assertSelectorTextContains('.alert-success', 'L\'utilisateur a bien été modifié');
         $this->assertSelectorTextContains('table', $editedUsername);
         $this->assertSelectorTextContains('table', $editedEmail);
-        // $this->assertContains("L'utilisateur a bien été modifié", [$crawler->filter('div.alert-success')->text()]);
-        // $this->assertContains($editedUsername, [$crawler->filter('table')->text()]);
-        // $this->assertContains($editedEmail, [$crawler->filter('table')->text()]);
     }
 }

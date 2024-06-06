@@ -18,7 +18,6 @@ class DefaultControllerTest extends WebTestCase
 
         // Then
         $this->assertResponseStatusCodeSame(401);
-        // $this->assertResponseRedirects("http://localhost/login");
     }
 
     public function testAuthenticatedIndexReturns200(): void

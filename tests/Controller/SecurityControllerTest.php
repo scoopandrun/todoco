@@ -39,8 +39,6 @@ class SecurityControllerTest extends WebTestCase
 
         // Then
         $this->assertSelectorTextContains('.alert-danger', 'Invalid credentials.');
-        // $this->assertTrue($crawler->filter('.alert-danger')->count() > 0);
-        // $this->assertContains('Invalid credentials.', [$crawler->html()]);
     }
 
     public function testLoginWithValidCredentials(): void
@@ -62,6 +60,5 @@ class SecurityControllerTest extends WebTestCase
 
         // Then
         $this->assertSelectorTextContains('h1', 'Bienvenue sur Todo List');
-        // $this->assertContains('Bienvenue sur Todo List', [$crawler->html()]);
     }
 }

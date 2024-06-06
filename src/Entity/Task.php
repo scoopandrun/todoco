@@ -5,39 +5,27 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity
- * @ORM\Table
- */
+#[ORM\Entity]
+#[ORM\Table]
 class Task
 {
-    /**
-     * @ORM\Column(type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
+    #[ORM\Column(type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
     private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private \DateTime $createdAt;
 
-    /**
-     * @ORM\Column(type="string")
-     * @Assert\NotBlank(message="Vous devez saisir un titre.")
-     */
+    #[ORM\Column(type: 'string')]
+    #[Assert\NotBlank(message: 'Vous devez saisir un titre.')]
     private ?string $title = null;
 
-    /**
-     * @ORM\Column(type="text")
-     * @Assert\NotBlank(message="Vous devez saisir du contenu.")
-     */
+    #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank(message: 'Vous devez saisir du contenu.')]
     private ?string $content = null;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $isDone = false;
 
     public function __construct()
@@ -55,7 +43,7 @@ class Task
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): self
+    public function setCreatedAt(\DateTime $createdAt): static
     {
         $this->createdAt = $createdAt;
 
@@ -67,7 +55,7 @@ class Task
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(string $title): static
     {
         $this->title = $title;
 
@@ -79,7 +67,7 @@ class Task
         return $this->content;
     }
 
-    public function setContent(string $content): self
+    public function setContent(string $content): static
     {
         $this->content = $content;
 
@@ -91,7 +79,7 @@ class Task
         return $this->isDone;
     }
 
-    public function toggle(bool $flag): self
+    public function toggle(bool $flag): static
     {
         $this->isDone = $flag;
 
