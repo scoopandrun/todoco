@@ -205,12 +205,12 @@
         ]
     },
     "symfony/phpunit-bridge": {
-        "version": "3.4",
+        "version": "7.1",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "3.3",
-            "ref": "c7c88767e034f656bdb78407d5b0407e2f12f92b"
+            "version": "6.3",
+            "ref": "a411a0480041243d97382cac7984f7dce7813c08"
         },
         "files": [
             ".env.test",
