@@ -100,7 +100,7 @@ class UserControllerTest extends WebTestCase
         // Then
         $this->assertResponseRedirects('/users');
         $crawler = $client->followRedirect();
-        $this->assertSelectorTextContains('.alert-success', 'L\'utilisateur a bien été modifié');
+        $this->assertSelectorTextContains('.alert-success', 'L\'utilisateur a bien été modifié.');
         $this->assertSelectorTextContains('table', $editedUsername);
         $this->assertSelectorTextContains('table', $editedEmail);
     }
