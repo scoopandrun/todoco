@@ -8,38 +8,36 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
-/**
- * @ORM\Table("user")
- * @ORM\Entity
- * @UniqueEntity("email", message="Cette adresse email est déjà utilisée.")
- * @UniqueEntity("username", message="Ce nom d'utilisateur est déjà utilisé.")
- */
+#[ORM\Entity]
+#[ORM\Table]
+#[UniqueEntity(fields: ['email'], message: 'Cette adresse email est déjà utilisée.')]
+#[UniqueEntity(fields: ['username'], message: "Ce nom d'utilisateur est déjà utilisé.")]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    /**
-     * @ORM\Column(type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
+    #[ORM\Column(type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
     private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=25, unique=true)
-     * @Assert\NotBlank(message="Vous devez saisir un nom d'utilisateur.")
-     */
+    #[ORM\Column(type: 'string', length: 25, unique: true)]
+    #[Assert\NotBlank(message: "Vous devez saisir un nom d'utilisateur.")]
     private ?string $username = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private ?string $password = null;
+    #[ORM\Column(type: 'string', length: 254)]
+    #[Assert\NotBlank(message: 'Vous devez saisir une adresse email.')]
+    #[Assert\Email(message: "Le format de l'adresse n'est pas correcte.")]
+    private ?string $email = null;
+
+    // #[ORM\Column]
+    private array $roles = [];
 
     /**
-     * @ORM\Column(type="string", length=254, unique=true)
-     * @Assert\NotBlank(message="Vous devez saisir une adresse email.")
-     * @Assert\Email(message="Le format de l'adresse n'est pas correcte.")
+     * @var string The hashed password
      */
-    private ?string $email = null;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $password = null;
+
+    private ?string $plainPassword = null;
 
     public function getId(): ?int
     {
@@ -68,11 +66,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getSalt(): ?string
-    {
-        return null;
-    }
-
     public function getPassword(): ?string
     {
         return $this->password;
@@ -97,12 +90,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @see UserInterface
+     */
     public function getRoles(): array
     {
-        return array('ROLE_USER');
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
     }
 
     public function eraseCredentials(): void
     {
+        $this->plainPassword = null;
     }
 }

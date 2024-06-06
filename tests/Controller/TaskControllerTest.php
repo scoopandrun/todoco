@@ -31,7 +31,6 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(200);
     }
 
-    // public function testUnauthenticatedAccessToTasksRedirectsToLogin(): void
     public function testUnauthenticatedAccessReturnsUnauthorizedResponse(): void
     {
         // Given
@@ -42,7 +41,6 @@ class TaskControllerTest extends WebTestCase
 
         // Then
         $this->assertResponseStatusCodeSame(401);
-        // $this->assertResponseRedirects("http://localhost/login");
     }
 
     /**
@@ -71,9 +69,6 @@ class TaskControllerTest extends WebTestCase
         $this->assertSelectorTextContains('.alert-success', 'La tâche a été bien été ajoutée.');
         $this->assertSelectorTextContains('body', $taskTitle);
         $this->assertSelectorTextContains('body', $taskContent);
-        // $this->assertContains($taskTitle, [$crawler->filter('body')->text()]);
-        // $this->assertContains($taskContent, [$crawler->filter('body')->text()]);
-        // $this->assertContains('La tâche a été bien été ajoutée.', [$crawler->filter('body')->text()]);
 
         // Get the ID of the created task
         $taskId = preg_replace('/[^0-9]/', '', $crawler->filter("a:contains('{$taskTitle}')")->attr('href'));
@@ -117,9 +112,6 @@ class TaskControllerTest extends WebTestCase
         $this->assertSelectorTextContains('.alert-success', 'La tâche a bien été modifiée.');
         $this->assertSelectorTextContains('body', $editedTaskTitle);
         $this->assertSelectorTextContains('body', $editedTaskContent);
-        // $this->assertContains($editedTaskTitle, [$crawler->filter('body')->text()]);
-        // $this->assertContains($editedTaskContent, [$crawler->filter('body')->text()]);
-        // $this->assertContains('La tâche a bien été modifiée.', [$crawler->filter('body')->text()]);
     }
 
     /**
@@ -146,7 +138,6 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
         $this->assertSelectorTextContains('.alert-success', "La tâche {$taskTitle} a bien été marquée comme faite.");
-        // $this->assertContains("La tâche {$taskTitle} a bien été marquée comme faite.", [$crawler->filter('body')->text()]);
         // Check if the task is marked as done
         $checkSpan = $crawler
             ->filter("a[href='/tasks/{$taskId}/edit']")
@@ -217,6 +208,5 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
         $this->assertSelectorTextNotContains('body', $taskTitle);
-        // $this->assertNotContains($taskTitle, [$crawler->filter('body')->text()]);
     }
 }
