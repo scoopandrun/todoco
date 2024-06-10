@@ -52,9 +52,9 @@ class UserControllerTest extends WebTestCase
     {
         // Given
         $client = $this->getAdminClient();
-        $newUsername = 'User2';
+        $newUsername = 'UserTest';
         $newUserPassword = 'pass123';
-        $newUserEmail = 'user2@example.com';
+        $newUserEmail = 'usertest@example.com';
 
         // When
         $crawler = $client->request('GET', '/users/create');

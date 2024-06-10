@@ -5,16 +5,19 @@ namespace App\Controller;
 use App\Entity\Task;
 use App\Form\TaskType;
 use App\Repository\TaskRepository;
+use App\Security\Voter\TaskVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/tasks', name: 'task')]
 class TaskController extends AbstractController
 {
     #[Route(path: '', name: '.list', methods: ['GET'])]
+    #[IsGranted(TaskVoter::LIST)]
     public function list(TaskRepository $taskRepository): Response
     {
         $tasks = $taskRepository->findAll();
@@ -22,6 +25,7 @@ class TaskController extends AbstractController
     }
 
     #[Route(path: '/create', name: '.create', methods: ['GET', 'POST'])]
+    #[IsGranted(TaskVoter::CREATE)]
     public function create(Request $request, EntityManagerInterface $entityManager): Response
     {
         $task = new Task();
@@ -30,6 +34,8 @@ class TaskController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $task->setAuthor($this->getUser());
+
             $entityManager->persist($task);
             $entityManager->flush();
 
@@ -44,7 +50,8 @@ class TaskController extends AbstractController
     #[Route(path: '/{id}/edit', name: '.edit', methods: ['GET', 'POST'])]
     public function edit(Task $task, Request $request, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(TaskType::class, $task);
+        $this->denyAccessUnlessGranted(TaskVoter::EDIT, $task);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -64,6 +71,8 @@ class TaskController extends AbstractController
     #[Route(path: '/{id}/toggle', name: '.toggle', methods: ['GET'])]
     public function toggle(Task $task, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted(TaskVoter::TOGGLE, $task);
+
         $task->toggle(!$task->isDone());
         $entityManager->flush();
 
@@ -75,6 +84,8 @@ class TaskController extends AbstractController
     #[Route(path: '/{id}/delete', name: '.delete', methods: ['GET'])]
     public function delete(Task $task, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted(TaskVoter::DELETE, $task, "Vous ne pouvez pas supprimer une tâche que vous n'avez pas créée.");
+
         $entityManager->remove($task);
         $entityManager->flush();
 

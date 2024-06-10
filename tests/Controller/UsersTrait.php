@@ -11,9 +11,11 @@ trait UsersTrait
     private ?UserRepository $userRepository = null;
     private ?User $admin = null;
     private ?User $user1 = null;
+    private ?User $user2 = null;
     private ?KernelBrowser $unauthenticatedClient = null;
     private ?KernelBrowser $adminClient = null;
     private ?KernelBrowser $user1Client = null;
+    private ?KernelBrowser $user2Client = null;
 
     private function getUserRepository(): UserRepository
     {
@@ -40,6 +42,15 @@ trait UsersTrait
         }
 
         return $this->user1;
+    }
+
+    private function getUser2(): User
+    {
+        if (is_null($this->user2)) {
+            $this->user2 = $this->getUserRepository()->findOneBy(['username' => 'User2']);
+        }
+
+        return $this->user2;
     }
 
     private function getUnauthenticatedClient(): KernelBrowser
@@ -69,5 +80,15 @@ trait UsersTrait
         }
 
         return $this->user1Client;
+    }
+
+    private function getUser2Client(): KernelBrowser
+    {
+        if (is_null($this->user2Client)) {
+            $this->user2Client = static::createClient();
+            $this->user2Client->loginUser($this->getUser2());
+        }
+
+        return $this->user2Client;
     }
 }

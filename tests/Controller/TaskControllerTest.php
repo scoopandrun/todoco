@@ -69,35 +69,6 @@ class TaskControllerTest extends WebTestCase
     }
 
     /**
-     * @param array<string, int|string> $taskInfo Info of the task to edit.
-     */
-    #[Depends('testTaskCanBeCreated')]
-    public function testTaskCanBeEdited(array $taskInfo): void
-    {
-        // Given
-        $client = $this->getUser1Client();
-        $taskId = $taskInfo['id'];
-        $taskTitle = $taskInfo['title'];
-        $taskContent = $taskInfo['content'];
-        $editedTaskTitle = $taskTitle . ' edited';
-        $editedTaskContent = $taskContent . ' edited';
-
-        // When
-        $crawler = $client->request('GET', "/tasks/{$taskId}/edit");
-        $form = $crawler->selectButton('Modifier')->form();
-        $form['task[title]'] = $editedTaskTitle;
-        $form['task[content]'] = $editedTaskContent;
-        $client->submit($form);
-
-        // Then
-        $this->assertResponseRedirects('/tasks');
-        $crawler = $client->followRedirect();
-        $this->assertSelectorTextContains('.alert-success', 'La tâche a bien été modifiée.');
-        $this->assertSelectorTextContains('body', $editedTaskTitle);
-        $this->assertSelectorTextContains('body', $editedTaskContent);
-    }
-
-    /**
      * @param array<string, int|string> $taskInfo Info of the task to toggle.
      */
     #[Depends('testTaskCanBeCreated')]
@@ -106,10 +77,10 @@ class TaskControllerTest extends WebTestCase
         // Given
         $client = $this->getUser1Client();
         $taskId = $taskInfo['id'];
+        $taskTitle = $taskInfo['title'];
 
         // When
         $crawler = $client->request('GET', '/tasks');
-        $taskTitle = $crawler->filter("a[href='/tasks/{$taskId}/edit']")->text();
         $toggleForm = $crawler->filter("form[action='/tasks/{$taskId}/toggle']")->first()->form();
         $client->submit($toggleForm);
 
@@ -141,10 +112,10 @@ class TaskControllerTest extends WebTestCase
         // Given
         $client = $this->getUser1Client();
         $taskId = $taskInfo['id'];
+        $taskTitle = $taskInfo['title'];
 
         // When
         $crawler = $client->request('GET', '/tasks');
-        // $taskTitle = $crawler->filter("a[href='/tasks/{$taskId}/edit']")->text();
         $toggleForm = $crawler->filter("form[action='/tasks/{$taskId}/toggle']")->first()->form();
         $client->submit($toggleForm);
 
@@ -167,6 +138,52 @@ class TaskControllerTest extends WebTestCase
     }
 
     /**
+     * @param array<string, int|string> $taskInfo Info of the task to edit.
+     */
+    #[Depends('testTaskCanBeCreated')]
+    public function testTaskCanBeEdited(array $taskInfo): void
+    {
+        // Given
+        $client = $this->getUser1Client();
+        $taskId = $taskInfo['id'];
+        $taskTitle = $taskInfo['title'];
+        $taskContent = $taskInfo['content'];
+        $editedTaskTitle = $taskTitle . ' edited';
+        $editedTaskContent = $taskContent . ' edited';
+
+        // When
+        $crawler = $client->request('GET', "/tasks/{$taskId}/edit");
+        $form = $crawler->selectButton('Modifier')->form();
+        $form['task[title]'] = $editedTaskTitle;
+        $form['task[content]'] = $editedTaskContent;
+        $client->submit($form);
+
+        // Then
+        $this->assertResponseRedirects('/tasks');
+        $crawler = $client->followRedirect();
+        $this->assertSelectorTextContains('.alert-success', 'La tâche a bien été modifiée.');
+        $this->assertSelectorTextContains('body', $editedTaskTitle);
+        $this->assertSelectorTextContains('body', $editedTaskContent);
+    }
+
+    /**
+     * @param array<string, int|string> $taskInfo Info of the task to delete.
+     */
+    #[Depends('testTaskCanBeCreated')]
+    public function testTaskCanNotBeDeletedByOtherUser(array $taskInfo): void
+    {
+        // Given
+        $client = $this->getUser2Client();
+        $taskId = $taskInfo['id'];
+
+        // When
+        $client->request('DELETE', "/tasks/{$taskId}");
+
+        // Then
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    /**
      * @param array<string, int|string> $taskInfo Info of the task to delete.
      */
     #[Depends('testTaskCanBeCreated')]
@@ -179,12 +196,36 @@ class TaskControllerTest extends WebTestCase
         // When
         $crawler = $client->request('GET', '/tasks');
         $taskTitle = $crawler->filter("a[href='/tasks/{$taskId}/edit']")->text();
-        $deleteForm = $crawler->filter("form[action='/tasks/{$taskId}/delete']")->first()->form();
+        $deleteForm = $crawler->filter("form[action='/tasks/{$taskId}']")->first()->form();
         $client->submit($deleteForm);
 
         // Then
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
         $this->assertSelectorTextNotContains('body', $taskTitle);
+    }
+
+    public function testAnonymousTaskCannotBeDeletedByOtherUser(): void
+    {
+        // Given
+        $client = $this->getUser1Client();
+
+        // When
+        $client->request('DELETE', '/tasks/1');
+
+        // Then
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testAnonymousCanBeDeletedByAdmin(): void
+    {
+        // Given
+        $client = $this->getAdminClient();
+
+        // When
+        $client->request('DELETE', '/tasks/1');
+
+        // Then
+        $this->assertResponseRedirects('/tasks');
     }
 }
