@@ -1,29 +1,18 @@
 <?php
 
-namespace Tests\App\Controller;
+namespace App\Tests\Controller;
 
 use PHPUnit\Framework\Attributes\Depends;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class TaskControllerTest extends WebTestCase
 {
-    private $user1;
-
-    public function setUp(): void
-    {
-        $this->user1 = [
-            'username' => 'User1',
-            'password' => 'pass123',
-        ];
-    }
+    use UsersTrait;
 
     public function testTasksPageIsUp(): void
     {
         // Given
-        $client = static::createClient([], [
-            'PHP_AUTH_USER' => $this->user1['username'],
-            'PHP_AUTH_PW' => $this->user1['password'],
-        ]);
+        $client = $this->getUser1Client();
 
         // When
         $client->request('GET', '/tasks');
@@ -35,7 +24,7 @@ class TaskControllerTest extends WebTestCase
     public function testUnauthenticatedAccessReturnsUnauthorizedResponse(): void
     {
         // Given
-        $client = static::createClient();
+        $client = $this->getUnauthenticatedClient();
 
         // When
         $client->request('GET', '/tasks/create');
@@ -50,10 +39,7 @@ class TaskControllerTest extends WebTestCase
     public function testTaskCanBeCreated(): array
     {
         // Given
-        $client = static::createClient([], [
-            'PHP_AUTH_USER' => $this->user1['username'],
-            'PHP_AUTH_PW' => $this->user1['password'],
-        ]);
+        $client = $this->getUser1Client();
         $taskTitle = 'Test task' . uniqid();
         $taskContent = 'Test task content';
 
@@ -72,7 +58,7 @@ class TaskControllerTest extends WebTestCase
         $this->assertSelectorTextContains('body', $taskContent);
 
         // Get the ID of the created task
-        $taskId = preg_replace('/[^0-9]/', '', $crawler->filter("a:contains('{$taskTitle}')")->attr('href'));
+        $taskId = (int) preg_replace('/[^0-9]/', '', $crawler->filter("a:contains('{$taskTitle}')")->attr('href'));
 
         // Return info of the created task
         return [
@@ -89,10 +75,7 @@ class TaskControllerTest extends WebTestCase
     public function testTaskCanBeEdited(array $taskInfo): void
     {
         // Given
-        $client = static::createClient([], [
-            'PHP_AUTH_USER' => $this->user1['username'],
-            'PHP_AUTH_PW' => $this->user1['password'],
-        ]);
+        $client = $this->getUser1Client();
         $taskId = $taskInfo['id'];
         $taskTitle = $taskInfo['title'];
         $taskContent = $taskInfo['content'];
@@ -121,10 +104,7 @@ class TaskControllerTest extends WebTestCase
     public function testTaskCanBeToggledDone(array $taskInfo): void
     {
         // Given
-        $client = static::createClient([], [
-            'PHP_AUTH_USER' => $this->user1['username'],
-            'PHP_AUTH_PW' => $this->user1['password'],
-        ]);
+        $client = $this->getUser1Client();
         $taskId = $taskInfo['id'];
 
         // When
@@ -138,27 +118,28 @@ class TaskControllerTest extends WebTestCase
         $crawler = $client->followRedirect();
         $this->assertSelectorTextContains('.alert-success', "La tâche {$taskTitle} a bien été marquée comme faite.");
         // Check if the task is marked as done
-        $checkSpan = $crawler
+        $icon = $crawler
             ->filter("a[href='/tasks/{$taskId}/edit']")
             ->first()
             ->ancestors()
-            ->eq(0)
-            ->siblings();
-        $this->assertCount(1, $checkSpan->filter('span.glyphicon-ok'));
-        $this->assertCount(0, $checkSpan->filter('span.glyphicon-remove'));
+            ->first()
+            ->siblings()
+            ->first()
+            ->children()
+            ->first();
+        $this->assertCount(1, $icon->filter('i.bi-check'));
+        $this->assertCount(0, $icon->filter('i.bi-x'));
     }
 
     /**
      * @param array $taskId Info of the task to toggle.
      */
     #[Depends('testTaskCanBeCreated')]
+    #[Depends('testTaskCanBeToggledDone')]
     public function testTaskCanBeToggledUndone(array $taskInfo): void
     {
         // Given
-        $client = static::createClient([], [
-            'PHP_AUTH_USER' => $this->user1['username'],
-            'PHP_AUTH_PW' => $this->user1['password'],
-        ]);
+        $client = $this->getUser1Client();
         $taskId = $taskInfo['id'];
 
         // When
@@ -172,14 +153,17 @@ class TaskControllerTest extends WebTestCase
         $crawler = $client->followRedirect();
         // $this->assertContains("La tâche {$taskTitle} a bien été marquée comme non terminée.", $crawler->filter('body')->text());
         // Check if the task is marked as undone
-        $checkSpan = $crawler
+        $icon = $crawler
             ->filter("a[href='/tasks/{$taskId}/edit']")
             ->first()
             ->ancestors()
-            ->eq(0)
-            ->siblings();
-        $this->assertCount(0, $checkSpan->filter('span.glyphicon-ok'));
-        $this->assertCount(1, $checkSpan->filter('span.glyphicon-remove'));
+            ->first()
+            ->siblings()
+            ->first()
+            ->children()
+            ->first();
+        $this->assertCount(0, $icon->filter('i.bi-check'));
+        $this->assertCount(1, $icon->filter('i.bi-x'));
     }
 
     /**
@@ -189,10 +173,7 @@ class TaskControllerTest extends WebTestCase
     public function testTaskCanBeDeleted(array $taskInfo): void
     {
         // Given
-        $client = static::createClient([], [
-            'PHP_AUTH_USER' => $this->user1['username'],
-            'PHP_AUTH_PW' => $this->user1['password'],
-        ]);
+        $client = $this->getUser1Client();
         $taskId = $taskInfo['id'];
 
         // When

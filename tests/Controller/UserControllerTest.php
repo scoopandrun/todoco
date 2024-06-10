@@ -1,32 +1,18 @@
 <?php
 
-namespace Tests\App\Controller;
+namespace App\Tests\Controller;
 
-use App\Entity\User;
-use App\Repository\UserRepository;
 use PHPUnit\Framework\Attributes\Depends;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class UserControllerTest extends WebTestCase
 {
-    private UserRepository $userRepository;
-    private User $admin;
-    private User $user1;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->userRepository = static::getContainer()->get(UserRepository::class);
-        $this->admin = $this->userRepository->findOneBy(['username' => 'Admin']);
-        $this->user1 = $this->userRepository->findOneBy(['username' => 'User1']);
-    }
+    use UsersTrait;
 
     public function testUsersPageIsUp(): void
     {
         // Given
-        $client = static::createClient();
-        $client->loginUser($this->admin);
+        $client = $this->getAdminClient();
 
         // When
         $client->request('GET', '/users');
@@ -38,7 +24,7 @@ class UserControllerTest extends WebTestCase
     public function testUnauthenticatedAccessReturnsUnauthorizedResponse(): void
     {
         // Given
-        $client = static::createClient();
+        $client = $this->getUnauthenticatedClient();
 
         // When
         $client->request('GET', '/users');
@@ -50,8 +36,7 @@ class UserControllerTest extends WebTestCase
     public function testNonAdminAccessReturnsForbiddenResponse(): void
     {
         // Given
-        $client = static::createClient();
-        $client->loginUser($this->user1);
+        $client = $this->getUser1Client();
 
         // When
         $client->request('GET', '/users');
@@ -66,8 +51,7 @@ class UserControllerTest extends WebTestCase
     public function testUserCanBeCreated(): array
     {
         // Given
-        $client = static::createClient();
-        $client->loginUser($this->admin);
+        $client = $this->getAdminClient();
         $newUsername = 'User2';
         $newUserPassword = 'pass123';
         $newUserEmail = 'user2@example.com';
@@ -110,8 +94,7 @@ class UserControllerTest extends WebTestCase
     public function testUserCanBeEdited(array $userInfo): void
     {
         // Given
-        $client = static::createClient();
-        $client->loginUser($this->admin);
+        $client = $this->getAdminClient();
         $editedUsername = $userInfo['username'] . 'edited';
         $editedEmail = str_replace('@', 'edited@', $userInfo['email']);
 

@@ -1,11 +1,13 @@
 <?php
 
+namespace App\Tests\Entity;
+
 use App\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase
 {
-    public function testGetId()
+    public function testGetId(): void
     {
         // Given
         $user = new User();
@@ -14,7 +16,7 @@ class UserTest extends TestCase
         $this->assertNull($user->getId());
     }
 
-    public function testGetUsername()
+    public function testGetUsername(): void
     {
         // Given
         $user = new User();
@@ -23,7 +25,7 @@ class UserTest extends TestCase
         $this->assertNull($user->getUsername());
     }
 
-    public function testSetUsername()
+    public function testSetUsername(): void
     {
         // Given
         $user = new User();
@@ -36,7 +38,7 @@ class UserTest extends TestCase
         $this->assertEquals($username, $user->getUsername());
     }
 
-    public function testGetPassword()
+    public function testGetPassword(): void
     {
         // Given
         $user = new User();
@@ -45,7 +47,7 @@ class UserTest extends TestCase
         $this->assertNull($user->getPassword());
     }
 
-    public function testSetPassword()
+    public function testSetPassword(): void
     {
         // Given
         $user = new User();
@@ -58,7 +60,7 @@ class UserTest extends TestCase
         $this->assertEquals($password, $user->getPassword());
     }
 
-    public function testGetEmail()
+    public function testGetEmail(): void
     {
         // Given
         $user = new User();
@@ -67,7 +69,7 @@ class UserTest extends TestCase
         $this->assertNull($user->getEmail());
     }
 
-    public function testSetEmail()
+    public function testSetEmail(): void
     {
         // Given
         $user = new User();
@@ -80,7 +82,7 @@ class UserTest extends TestCase
         $this->assertEquals($email, $user->getEmail());
     }
 
-    public function testGetRoles()
+    public function testGetRoles(): void
     {
         // Given
         $user = new User();
@@ -104,11 +106,16 @@ class UserTest extends TestCase
         $this->assertEquals($expectedRoles, $user->getRoles());
     }
 
+    public function testEraseCredentials(): void
     {
         // Given
         $user = new User();
+        $reflection = new \ReflectionClass($user);
+
+        // When
+        $user->eraseCredentials();
 
         // Then
-        $this->assertNull($user->eraseCredentials());
+        $this->assertNull($reflection->getProperty('plainPassword')->getValue($user));
     }
 }

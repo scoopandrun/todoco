@@ -1,11 +1,13 @@
 <?php
 
+namespace App\Tests\Entity;
+
 use App\Entity\Task;
 use PHPUnit\Framework\TestCase;
 
 class TaskTest extends TestCase
 {
-    public function testGetId()
+    public function testGetId(): void
     {
         // Given
         $task = new Task();
@@ -14,20 +16,20 @@ class TaskTest extends TestCase
         $this->assertNull($task->getId());
     }
 
-    public function testGetCreatedAt()
+    public function testGetCreatedAt(): void
     {
         // Given
         $task = new Task();
 
         // Then
-        $this->assertInstanceOf(DateTime::class, $task->getCreatedAt());
+        $this->assertInstanceOf(\DateTime::class, $task->getCreatedAt());
     }
 
-    public function testSetCreatedAt()
+    public function testSetCreatedAt(): void
     {
         // Given
         $task = new Task();
-        $createdAt = new DateTime();
+        $createdAt = new \DateTime();
 
         // When
         $task->setCreatedAt($createdAt);
@@ -36,7 +38,7 @@ class TaskTest extends TestCase
         $this->assertEquals($createdAt, $task->getCreatedAt());
     }
 
-    public function testGetTitle()
+    public function testGetTitle(): void
     {
         // Given
         $task = new Task();
@@ -45,7 +47,7 @@ class TaskTest extends TestCase
         $this->assertNull($task->getTitle());
     }
 
-    public function testSetTitle()
+    public function testSetTitle(): void
     {
         // Given
         $task = new Task();
@@ -58,7 +60,7 @@ class TaskTest extends TestCase
         $this->assertEquals($title, $task->getTitle());
     }
 
-    public function testGetContent()
+    public function testGetContent(): void
     {
         // Given
         $task = new Task();
@@ -67,7 +69,7 @@ class TaskTest extends TestCase
         $this->assertNull($task->getContent());
     }
 
-    public function testSetContent()
+    public function testSetContent(): void
     {
         // Given
         $task = new Task();
@@ -80,7 +82,7 @@ class TaskTest extends TestCase
         $this->assertEquals($content, $task->getContent());
     }
 
-    public function testIsDone()
+    public function testIsDone(): void
     {
         // Given
         $task = new Task();
@@ -89,7 +91,7 @@ class TaskTest extends TestCase
         $this->assertFalse($task->isDone());
     }
 
-    public function testToggle()
+    public function testToggle(): void
     {
         // Given
         $task = new Task();
