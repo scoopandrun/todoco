@@ -38,6 +38,10 @@ class UsersVoter extends Voter
             return false;
         }
 
+        if (!is_null($subject) && !$subject instanceof User) {
+            return false;
+        }
+
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case self::LIST:
