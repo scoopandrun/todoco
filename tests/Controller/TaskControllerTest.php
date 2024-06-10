@@ -34,7 +34,7 @@ class TaskControllerTest extends WebTestCase
     }
 
     /**
-     * @return int Info about the created task.
+     * @return array<string, int|string> Info about the created task.
      */
     public function testTaskCanBeCreated(): array
     {
@@ -69,7 +69,7 @@ class TaskControllerTest extends WebTestCase
     }
 
     /**
-     * @param array $taskInfo Info of the task to edit.
+     * @param array<string, int|string> $taskInfo Info of the task to edit.
      */
     #[Depends('testTaskCanBeCreated')]
     public function testTaskCanBeEdited(array $taskInfo): void
@@ -98,7 +98,7 @@ class TaskControllerTest extends WebTestCase
     }
 
     /**
-     * @param array $taskId Info of the task to toggle.
+     * @param array<string, int|string> $taskInfo Info of the task to toggle.
      */
     #[Depends('testTaskCanBeCreated')]
     public function testTaskCanBeToggledDone(array $taskInfo): void
@@ -132,7 +132,7 @@ class TaskControllerTest extends WebTestCase
     }
 
     /**
-     * @param array $taskId Info of the task to toggle.
+     * @param array<string, int|string> $taskInfo Info of the task to toggle.
      */
     #[Depends('testTaskCanBeCreated')]
     #[Depends('testTaskCanBeToggledDone')]
@@ -167,7 +167,7 @@ class TaskControllerTest extends WebTestCase
     }
 
     /**
-     * @param array $taskId Info of the task to delete.
+     * @param array<string, int|string> $taskInfo Info of the task to delete.
      */
     #[Depends('testTaskCanBeCreated')]
     public function testTaskCanBeDeleted(array $taskInfo): void

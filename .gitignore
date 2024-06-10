@@ -24,3 +24,7 @@
 /docker/
 **/phpinfo.php
 ###< local environment ###
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###

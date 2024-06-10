@@ -46,7 +46,7 @@ class UserControllerTest extends WebTestCase
     }
 
     /**
-     * @return (string|string[]|null)[] Info about the created user.
+     * @return array<string, int|string> Info about the created user.
      */
     public function testUserCanBeCreated(): array
     {
@@ -88,7 +88,7 @@ class UserControllerTest extends WebTestCase
     }
 
     /**
-     * @param array $userInfo User info.
+     * @param array<string, int|string> $userInfo User info.
      */
     #[Depends('testUserCanBeCreated')]
     public function testUserCanBeEdited(array $userInfo): void
@@ -103,8 +103,8 @@ class UserControllerTest extends WebTestCase
 
         $form = $crawler->selectButton('Modifier')->form();
         $form['user[username]'] = $editedUsername;
-        $form['user[password][first]'] = $userInfo['password'];
-        $form['user[password][second]'] = $userInfo['password'];
+        $form['user[password][first]'] = (string) $userInfo['password'];
+        $form['user[password][second]'] = (string) $userInfo['password'];
         $form['user[email]'] = $editedEmail;
 
         $client->submit($form);

@@ -28,6 +28,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Email(message: "Le format de l'adresse n'est pas correcte.")]
     private ?string $email = null;
 
+    /**
+     * @var null|array<string>
+     */
     #[ORM\Column]
     private ?array $roles = [];
 
@@ -102,6 +105,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return array_unique($roles);
     }
 
+    /**
+     * @param array<string> $roles 
+     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
