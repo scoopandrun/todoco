@@ -2,35 +2,62 @@
 
 namespace Tests\App\Controller;
 
+use App\Entity\User;
+use App\Repository\UserRepository;
 use PHPUnit\Framework\Attributes\Depends;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class UserControllerTest extends WebTestCase
 {
-    private $user;
+    private UserRepository $userRepository;
+    private User $admin;
+    private User $user1;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = [
-            'username' => 'User1',
-            'password' => 'pass123',
-        ];
+
+        $this->userRepository = static::getContainer()->get(UserRepository::class);
+        $this->admin = $this->userRepository->findOneBy(['username' => 'Admin']);
+        $this->user1 = $this->userRepository->findOneBy(['username' => 'User1']);
     }
 
     public function testUsersPageIsUp(): void
     {
         // Given
-        $client = static::createClient([], [
-            'PHP_AUTH_USER' => $this->user['username'],
-            'PHP_AUTH_PW' => $this->user['password'],
-        ]);
+        $client = static::createClient();
+        $client->loginUser($this->admin);
 
         // When
         $client->request('GET', '/users');
 
         // Then
         $this->assertResponseIsSuccessful();
+    }
+
+    public function testUnauthenticatedAccessReturnsUnauthorizedResponse(): void
+    {
+        // Given
+        $client = static::createClient();
+
+        // When
+        $client->request('GET', '/users');
+
+        // Then
+        $this->assertResponseStatusCodeSame(401);
+    }
+
+    public function testNonAdminAccessReturnsForbiddenResponse(): void
+    {
+        // Given
+        $client = static::createClient();
+        $client->loginUser($this->user1);
+
+        // When
+        $client->request('GET', '/users');
+
+        // Then
+        $this->assertResponseStatusCodeSame(403);
     }
 
     /**
@@ -40,6 +67,7 @@ class UserControllerTest extends WebTestCase
     {
         // Given
         $client = static::createClient();
+        $client->loginUser($this->admin);
         $newUsername = 'User2';
         $newUserPassword = 'pass123';
         $newUserEmail = 'user2@example.com';
@@ -64,7 +92,7 @@ class UserControllerTest extends WebTestCase
 
         // Get ID of the created user
         $link = $crawler->filter('table')->filter("td:contains('{$newUsername}')")->siblings()->last()->children()->first()->attr('href');
-        $userId = preg_replace('/[^0-9]/', '', $link);
+        $userId = (int) preg_replace('/[^0-9]/', '', $link);
 
         // Return user info
         return [
@@ -83,6 +111,7 @@ class UserControllerTest extends WebTestCase
     {
         // Given
         $client = static::createClient();
+        $client->loginUser($this->admin);
         $editedUsername = $userInfo['username'] . 'edited';
         $editedEmail = str_replace('@', 'edited@', $userInfo['email']);
 
