@@ -14,7 +14,6 @@ class UsersVoter extends Voter
     public const LIST = 'USER_LIST';
     public const CREATE = 'USER_CREATE';
     public const EDIT = 'USER_EDIT';
-    public const VIEW = 'USER_VIEW';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -23,7 +22,7 @@ class UsersVoter extends Voter
         }
 
         if ($subject instanceof User) {
-            return in_array($attribute, [self::EDIT, self::VIEW]);
+            return in_array($attribute, [self::EDIT]);
         }
 
         return false;
@@ -43,9 +42,6 @@ class UsersVoter extends Voter
         switch ($attribute) {
             case self::LIST:
                 return $user->isAdmin();
-
-            case self::VIEW:
-                return $user->isAdmin() || $user === $subject;
 
             case self::CREATE:
                 return $user->isAdmin();
