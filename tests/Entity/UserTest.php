@@ -90,7 +90,20 @@ class UserTest extends TestCase
         $this->assertEquals($expectedRoles, $user->getRoles());
     }
 
-    public function testEraseCredentials()
+    public function testSetRoles(): void
+    {
+        // Given
+        $user = new User();
+        $roles = ['ROLE_ADMIN'];
+        $expectedRoles = ['ROLE_ADMIN', 'ROLE_USER'];
+
+        // When
+        $user->setRoles($roles);
+
+        // Then
+        $this->assertEquals($expectedRoles, $user->getRoles());
+    }
+
     {
         // Given
         $user = new User();

@@ -42,8 +42,9 @@
 
         <!-- Page Content -->
         <div class="container">
-            <div class="row">
-                <a href="{{ path('user.create') }}" class="btn btn-primary">Créer un utilisateur</a>
+                {% if is_granted('USER_CREATE') %}
+                    <a href="{{ path('user.create') }}" class="btn btn-primary">Créer un utilisateur</a>
+                {% endif %}
 
                 {% if app.user %}
                     <a href="{{ path('logout') }}" class="pull-right btn btn-danger">Se déconnecter</a>
