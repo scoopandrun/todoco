@@ -1,14 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block header_title %}<h1>Modifier <strong>{{ user.username }}</strong></h1>{% endblock %}
+{% set user = user ?? null %}
+
+{% block header_title %}
+    {% if user %}
+        <h1>Modifier <strong>{{ user.username }}</strong></h1>
+    {% else %}
+        <h1>Créer un utilisateur</h1>        
+    {% endif %}
+{% endblock %}
 {% block header_img %}{% endblock %}
 
 {% block body %}
     <div class="row">
-        {{ form_start(form, {'action' : path('user.edit', {'id' : user.id})}) }}
-        {{ form_widget(form) }}
-
-        <button type="submit" class="btn btn-success float-end">Modifier</button>
-        {{ form_end(form) }}
+        {{ form(form) }}
     </div>
+
+    <button type="submit" form="{{ form.vars.id }}" class="btn btn-success float-end">{{ user ? 'Modifier' : 'Ajouter' }}</button>
 {% endblock %}

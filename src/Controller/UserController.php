@@ -34,7 +34,7 @@ class UserController extends AbstractController
     ): Response {
         $user = new User();
 
-        $form = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(UserType::class, $user, ['method' => 'POST']);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -48,10 +48,12 @@ class UserController extends AbstractController
             return $this->redirectToRoute('user.list');
         }
 
-        return $this->render('user/create.html.twig', ['form' => $form->createView()]);
+        return $this->render('user/edit.html.twig', [
+            'form' => $form,
+        ]);
     }
 
-    #[Route(path: '/{id}/edit', name: '.edit', methods: ['GET', 'POST'])]
+    #[Route(path: '/{id}/edit', name: '.edit', methods: ['GET', 'PUT'])]
     public function edit(
         User $user,
         Request $request,
@@ -60,7 +62,7 @@ class UserController extends AbstractController
     ): Response {
         $this->denyAccessUnlessGranted(UsersVoter::EDIT, $user);
 
-        $form = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(UserType::class, $user, ['method' => 'PUT']);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -73,6 +75,9 @@ class UserController extends AbstractController
             return $this->redirectToRoute('user.list');
         }
 
-        return $this->render('user/edit.html.twig', ['form' => $form->createView(), 'user' => $user]);
+        return $this->render('user/edit.html.twig', [
+            'form' => $form,
+            'user' => $user,
+        ]);
     }
 }

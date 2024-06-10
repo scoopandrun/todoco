@@ -6,37 +6,60 @@
     <div class="row">
         {% for task in tasks %}
         <div class="col-sm-4 col-lg-4 col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="clearfix">
-                        <h5 class="card-title float-start">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h4 class="float-end">
+                        {% if task.isDone %}<i class="bi-check"></i>{% else %}<i class="bi-x"></i>{% endif %}
+                    </h4>
+
+                    <h5 class="card-title">
+                        {% if is_granted('TASK_EDIT', task) %}
                             <a href="{{ path('task.edit', {'id' : task.id }) }}" class="link-primary text-decoration-none">{{ task.title }}</a>
-                        </h5>
-                        <h4 class="float-end">
-                            {% if task.isDone %}<i class="bi-check"></i>{% else %}<i class="bi-x"></i>{% endif %}
-                        </h4>
-                    </div>
-
-                    <p class="card-test">{{ task.content }}</p>
+                        {% else %}
+                            {{ task.title }}
+                        {% endif %}
+                    </h5>
+                    
+                    <h6 class="card-subtitle fw-normal text-body-secondary">
+                        Auteur : {{ task.author.username ?? 'Anonyme' }}
+                    </h6>
                 </div>
 
-                <div class="card-footer">
-                    <div class="d-flex justify-content-between">
-                        <form action="{{ path('task.toggle', {'id' : task.id }) }}">
-                            <button class="btn btn-success btn-sm">
-                                {% if not task.isDone %}Marquer comme faite{% else %}Marquer non terminée{% endif %}
-                            </button>
-                        </form>
-                        <form action="{{ path('task.delete', {'id' : task.id }) }}">
-                            <button class="btn btn-danger btn-sm">Supprimer</button>
-                        </form>
-                    </div>
+                <div class="card-body">
+
+                    <p class="card-text">{{ task.content }}</p>
                 </div>
+
+                {% if is_granted('TASK_TOGGLE', task) or is_granted('TASK_DELETE', task) %}
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            {% if is_granted('TASK_TOGGLE', task) %}                            
+                                <form action="{{ path('task.toggle', {'id' : task.id }) }}" method="post">
+                                    <input type="hidden" name="_method" value="TOGGLE">
+                                    <button class="btn btn-success btn-sm">
+                                        {% if not task.isDone %}Marquer comme faite{% else %}Marquer non terminée{% endif %}
+                                    </button>
+                                </form>
+                            {% endif %}
+
+                            {% if is_granted('TASK_DELETE', task) %}                            
+                                <form action="{{ path('task.delete', {'id' : task.id }) }}" method="post">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button class="btn btn-danger btn-sm">Supprimer</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
         {% else %}
             <div class="alert alert-warning" role="alert">
-                Il n'y a pas encore de tâche enregistrée. <a href="{{ path('task.create') }}" class="btn btn-warning float-end">Créer une tâche</a>
+                Il n'y a pas encore de tâche enregistrée.
+
+                {% if is_granted('TASK_CREATE') %}
+                    <a href="{{ path('task.create') }}" class="btn btn-warning float-end">Créer une tâche</a>
+                {% endif %}
             </div>
         {% endfor %}
     </div>

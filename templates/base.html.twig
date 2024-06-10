@@ -33,7 +33,7 @@
 
         <!-- Page Content -->
         <div class="container">
-            <div class="d-flex justify-content-between mb-1 gap-1">
+            <div class="d-flex justify-content-between align-items-center mb-1 gap-1">
                 {% if is_granted('TASK_CREATE') %}
                     <a href="{{ path('task.create') }}" class="btn btn-info">Créer une tâche</a>
 
@@ -41,7 +41,9 @@
                     <a href="{{ path('user.create') }}" class="btn btn-primary">Créer un utilisateur</a>
                 {% endif %}
 
-                    <a href="{{ path('logout') }}" class="btn btn-danger ms-auto">Se déconnecter</a>
+                    <span class="ms-auto pe-3">{{ app.user.username }}</span>
+
+                    <a href="{{ path('logout') }}" class="btn btn-danger">Se déconnecter</a>
                 {% endif %}
 
                 {% if not app.user and 'login' != app.request.attributes.get('_route') %}

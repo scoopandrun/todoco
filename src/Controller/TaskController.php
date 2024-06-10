@@ -30,7 +30,7 @@ class TaskController extends AbstractController
     {
         $task = new Task();
 
-        $form = $this->createForm(TaskType::class, $task);
+        $form = $this->createForm(TaskType::class, $task, ['method' => 'POST']);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -44,14 +44,17 @@ class TaskController extends AbstractController
             return $this->redirectToRoute('task.list');
         }
 
-        return $this->render('task/create.html.twig', ['form' => $form->createView()]);
+        return $this->render('task/edit.html.twig', [
+            'form' => $form,
+        ]);
     }
 
-    #[Route(path: '/{id}/edit', name: '.edit', methods: ['GET', 'POST'])]
+    #[Route(path: '/{id}/edit', name: '.edit', methods: ['GET', 'PUT'])]
     public function edit(Task $task, Request $request, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted(TaskVoter::EDIT, $task);
 
+        $form = $this->createForm(TaskType::class, $task, ['method' => 'PUT']);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -63,12 +66,12 @@ class TaskController extends AbstractController
         }
 
         return $this->render('task/edit.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'task' => $task,
         ]);
     }
 
-    #[Route(path: '/{id}/toggle', name: '.toggle', methods: ['GET'])]
+    #[Route(path: '/{id}', name: '.toggle', methods: ['TOGGLE'])]
     public function toggle(Task $task, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted(TaskVoter::TOGGLE, $task);
@@ -76,12 +79,13 @@ class TaskController extends AbstractController
         $task->toggle(!$task->isDone());
         $entityManager->flush();
 
-        $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
+        $status = $task->isDone() ? 'faite' : 'non terminée';
+        $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme %s.', $task->getTitle(), $status));
 
         return $this->redirectToRoute('task.list');
     }
 
-    #[Route(path: '/{id}/delete', name: '.delete', methods: ['GET'])]
+    #[Route(path: '/{id}', name: '.delete', methods: ['DELETE'])]
     public function delete(Task $task, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted(TaskVoter::DELETE, $task, "Vous ne pouvez pas supprimer une tâche que vous n'avez pas créée.");
