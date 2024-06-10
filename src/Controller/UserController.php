@@ -5,17 +5,20 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
+use App\Security\Voter\UsersVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/users', name: 'user')]
 class UserController extends AbstractController
 {
     #[Route(path: '', name: '.list', methods: ['GET'])]
+    #[IsGranted(UsersVoter::LIST)]
     public function list(UserRepository $userRepository): Response
     {
         $users = $userRepository->findAll();
@@ -23,6 +26,7 @@ class UserController extends AbstractController
     }
 
     #[Route(path: '/create', name: '.create', methods: ['GET', 'POST'])]
+    #[IsGranted(UsersVoter::CREATE)]
     public function create(
         Request $request,
         EntityManagerInterface $em,
@@ -54,6 +58,8 @@ class UserController extends AbstractController
         EntityManagerInterface $em,
         UserPasswordHasherInterface $passwordHasher
     ): Response {
+        $this->denyAccessUnlessGranted(UsersVoter::EDIT, $user);
+
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 

@@ -50,6 +50,8 @@ class UsersVoter extends Voter
                 return $user->isAdmin() || $user === $subject;
         }
 
-        return false;
+        // @codeCoverageIgnoreStart
+        throw new \LogicException('This code should not be reached!');
+        // @codeCoverageIgnoreEnd
     }
 }
