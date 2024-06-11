@@ -45,7 +45,7 @@ class TaskControllerTest extends WebTestCase
 
         // When
         $crawler = $client->request('GET', '/tasks/create');
-        $form = $crawler->selectButton('Ajouter')->form();
+        $form = $crawler->filter('form[name=task]')->form();
         $form['task[title]'] = $taskTitle;
         $form['task[content]'] = $taskContent;
         $client->submit($form);
@@ -81,7 +81,7 @@ class TaskControllerTest extends WebTestCase
 
         // When
         $crawler = $client->request('GET', '/tasks');
-        $toggleForm = $crawler->filter("form[action='/tasks/{$taskId}/toggle']")->first()->form();
+        $toggleForm = $crawler->filter("#task-{$taskId}-toggle")->form();
         $client->submit($toggleForm);
 
         // Then
@@ -89,15 +89,7 @@ class TaskControllerTest extends WebTestCase
         $crawler = $client->followRedirect();
         $this->assertSelectorTextContains('.alert-success', "La tâche {$taskTitle} a bien été marquée comme faite.");
         // Check if the task is marked as done
-        $icon = $crawler
-            ->filter("a[href='/tasks/{$taskId}/edit']")
-            ->first()
-            ->ancestors()
-            ->first()
-            ->siblings()
-            ->first()
-            ->children()
-            ->first();
+        $icon = $crawler->filter("#task-{$taskId}-icon");
         $this->assertCount(1, $icon->filter('i.bi-check'));
         $this->assertCount(0, $icon->filter('i.bi-x'));
     }
@@ -116,23 +108,15 @@ class TaskControllerTest extends WebTestCase
 
         // When
         $crawler = $client->request('GET', '/tasks');
-        $toggleForm = $crawler->filter("form[action='/tasks/{$taskId}/toggle']")->first()->form();
+        $toggleForm = $crawler->filter("#task-{$taskId}-toggle")->first()->form();
         $client->submit($toggleForm);
 
         // Then
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
-        // $this->assertContains("La tâche {$taskTitle} a bien été marquée comme non terminée.", $crawler->filter('body')->text());
+        $this->assertSelectorTextContains('.alert-success', "La tâche {$taskTitle} a bien été marquée comme non terminée.");
         // Check if the task is marked as undone
-        $icon = $crawler
-            ->filter("a[href='/tasks/{$taskId}/edit']")
-            ->first()
-            ->ancestors()
-            ->first()
-            ->siblings()
-            ->first()
-            ->children()
-            ->first();
+        $icon = $crawler->filter("#task-{$taskId}-icon");
         $this->assertCount(0, $icon->filter('i.bi-check'));
         $this->assertCount(1, $icon->filter('i.bi-x'));
     }
@@ -141,6 +125,7 @@ class TaskControllerTest extends WebTestCase
      * @param array<string, int|string> $taskInfo Info of the task to edit.
      */
     #[Depends('testTaskCanBeCreated')]
+    #[Depends('testTaskCanBeToggledUndone')]
     public function testTaskCanBeEdited(array $taskInfo): void
     {
         // Given
@@ -153,7 +138,7 @@ class TaskControllerTest extends WebTestCase
 
         // When
         $crawler = $client->request('GET', "/tasks/{$taskId}/edit");
-        $form = $crawler->selectButton('Modifier')->form();
+        $form = $crawler->filter('form[name=task]')->form();
         $form['task[title]'] = $editedTaskTitle;
         $form['task[content]'] = $editedTaskContent;
         $client->submit($form);
@@ -170,6 +155,7 @@ class TaskControllerTest extends WebTestCase
      * @param array<string, int|string> $taskInfo Info of the task to delete.
      */
     #[Depends('testTaskCanBeCreated')]
+    #[Depends('testTaskCanBeEdited')]
     public function testTaskCanNotBeDeletedByOtherUser(array $taskInfo): void
     {
         // Given
@@ -187,6 +173,7 @@ class TaskControllerTest extends WebTestCase
      * @param array<string, int|string> $taskInfo Info of the task to delete.
      */
     #[Depends('testTaskCanBeCreated')]
+    #[Depends('testTaskCanNotBeDeletedByOtherUser')]
     public function testTaskCanBeDeleted(array $taskInfo): void
     {
         // Given
@@ -196,7 +183,7 @@ class TaskControllerTest extends WebTestCase
         // When
         $crawler = $client->request('GET', '/tasks');
         $taskTitle = $crawler->filter("a[href='/tasks/{$taskId}/edit']")->text();
-        $deleteForm = $crawler->filter("form[action='/tasks/{$taskId}']")->first()->form();
+        $deleteForm = $crawler->filter("#task-{$taskId}-delete")->first()->form();
         $client->submit($deleteForm);
 
         // Then

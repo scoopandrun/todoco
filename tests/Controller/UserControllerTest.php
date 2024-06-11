@@ -59,7 +59,7 @@ class UserControllerTest extends WebTestCase
         // When
         $crawler = $client->request('GET', '/users/create');
 
-        $form = $crawler->selectButton('Ajouter')->form();
+        $form = $crawler->filter('form[name=user]')->form();
         $form['user[username]'] = $newUsername;
         $form['user[password][first]'] = $newUserPassword;
         $form['user[password][second]'] = $newUserPassword;
@@ -101,7 +101,7 @@ class UserControllerTest extends WebTestCase
         // When
         $crawler = $client->request('GET', "/users/{$userInfo['id']}/edit");
 
-        $form = $crawler->selectButton('Modifier')->form();
+        $form = $crawler->filter('form[name=user]')->form();
         $form['user[username]'] = $editedUsername;
         $form['user[password][first]'] = (string) $userInfo['password'];
         $form['user[password][second]'] = (string) $userInfo['password'];

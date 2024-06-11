@@ -6,13 +6,13 @@
     <div class="row">
         {% for task in tasks %}
         <div class="col-sm-4 col-lg-4 col-md-4">
-            <div class="card mb-3">
+            <div class="card mb-3" id="task-{{ task.id }}">
                 <div class="card-header">
-                    <h4 class="float-end">
+                    <h4 class="float-end" id="task-{{ task.id }}-icon">
                         {% if task.isDone %}<i class="bi-check"></i>{% else %}<i class="bi-x"></i>{% endif %}
                     </h4>
 
-                    <h5 class="card-title">
+                    <h5 class="card-title" id="task-{{ task.id }}-title">
                         {% if is_granted('TASK_EDIT', task) %}
                             <a href="{{ path('task.edit', {'id' : task.id }) }}" class="link-primary text-decoration-none">{{ task.title }}</a>
                         {% else %}
@@ -36,7 +36,7 @@
                             {% if is_granted('TASK_TOGGLE', task) %}                            
                                 <form action="{{ path('task.toggle', {'id' : task.id }) }}" method="post">
                                     <input type="hidden" name="_method" value="TOGGLE">
-                                    <button class="btn btn-success btn-sm">
+                                    <button class="btn btn-success btn-sm" id="task-{{ task.id }}-toggle">
                                         {% if not task.isDone %}Marquer comme faite{% else %}Marquer non terminée{% endif %}
                                     </button>
                                 </form>
@@ -45,7 +45,7 @@
                             {% if is_granted('TASK_DELETE', task) %}                            
                                 <form action="{{ path('task.delete', {'id' : task.id }) }}" method="post">
                                     <input type="hidden" name="_method" value="DELETE">
-                                    <button class="btn btn-danger btn-sm">Supprimer</button>
+                                    <button class="btn btn-danger btn-sm" id="task-{{ task.id }}-delete">Supprimer</button>
                                 </form>
                             {% endif %}
                         </div>
