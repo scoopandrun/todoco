@@ -35,7 +35,7 @@
                         <div class="d-flex justify-content-between">
                             {% if is_granted('TASK_TOGGLE', task) %}                            
                                 <form action="{{ path('task.toggle', {'id' : task.id }) }}" method="post">
-                                    <input type="hidden" name="_method" value="TOGGLE">
+                                    <input type="hidden" name="_method" value="PATCH">
                                     <button class="btn btn-success btn-sm" id="task-{{ task.id }}-toggle">
                                         {% if not task.isDone %}Marquer comme faite{% else %}Marquer non terminée{% endif %}
                                     </button>

@@ -71,7 +71,7 @@ class TaskController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/{id}', name: '.toggle', methods: ['TOGGLE'])]
+    #[Route(path: '/{id}', name: '.toggle', methods: ['PATCH'])]
     public function toggle(Task $task, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted(TaskVoter::TOGGLE, $task);
