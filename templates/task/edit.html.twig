@@ -1,17 +1,15 @@
 {% extends 'base.html.twig' %}
 
+{% set task = task ?? null %}
+
 {% block body %}
     <div class="row">
-        {{ form_start(form, {'action' : path('task.edit', { 'id' : task.id })}) }}
-            {{ form_widget(form) }}
-
-            <div class="d-flex justify-content-between">
-                <a href="{{ path('task.list') }}" class="btn btn-primary">Retour à la liste des tâches</a>
-
-                <button type="submit" class="btn btn-success">Modifier</button>
-            </div>
-
-        {{ form_end(form) }}
+        {{ form(form) }}
+    </div>
         
+    <div class="d-flex justify-content-between">
+        <a href="{{ path('task.list') }}" class="btn btn-primary">Retour à la liste des tâches</a>
+
+        <button type="submit" form="{{ form.vars.id }}" class="btn btn-success">{{ task ? 'Modifier' : 'Ajouter' }}</button>
     </div>
 {% endblock %}

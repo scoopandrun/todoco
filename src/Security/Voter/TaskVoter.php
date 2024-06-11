@@ -2,18 +2,21 @@
 
 namespace App\Security\Voter;
 
+use App\Entity\Task;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * @extends Voter<string, User>
+ * @extends Voter<string, Task>
  */
-class UsersVoter extends Voter
+class TaskVoter extends Voter
 {
-    public const LIST = 'USER_LIST';
-    public const CREATE = 'USER_CREATE';
-    public const EDIT = 'USER_EDIT';
+    public const LIST = 'TASK_LIST';
+    public const CREATE = 'TASK_CREATE';
+    public const EDIT = 'TASK_EDIT';
+    public const TOGGLE = 'TASK_TOGGLE';
+    public const DELETE = 'TASK_DELETE';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -21,8 +24,8 @@ class UsersVoter extends Voter
             return in_array($attribute, [self::LIST, self::CREATE]);
         }
 
-        if ($subject instanceof User) {
-            return in_array($attribute, [self::EDIT]);
+        if ($subject instanceof Task) {
+            return in_array($attribute, [self::EDIT, self::TOGGLE, self::DELETE]);
         }
 
         return false;
@@ -38,20 +41,26 @@ class UsersVoter extends Voter
             return false;
         }
 
-        if (!is_null($subject) && !$subject instanceof User) {
+        if (!is_null($subject) && !$subject instanceof Task) {
             return false;
         }
 
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case self::LIST:
-                return $user->isAdmin();
+                return true;
 
             case self::CREATE:
-                return $user->isAdmin();
+                return true;
 
             case self::EDIT:
-                return $user->isAdmin() || $user === $subject;
+                return true;
+
+            case self::TOGGLE:
+                return true;
+
+            case self::DELETE:
+                return (is_null($subject->getAuthor()) && $user->isAdmin()) || $user === $subject->getAuthor();
         }
 
         // @codeCoverageIgnoreStart

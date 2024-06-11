@@ -65,7 +65,7 @@ class SecurityControllerTest extends WebTestCase
         $method = 'GET';
         $url = '/login';
         $username = 'User1';
-        $password = 'pass123';
+        $password = 'pass';
 
         // When
         $crawler = $client->request($method, $url);
