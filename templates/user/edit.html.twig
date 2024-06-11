@@ -6,14 +6,42 @@
     {% if user %}
         <h1>Modifier <strong>{{ user.username }}</strong></h1>
     {% else %}
-        <h1>Créer un utilisateur</h1>        
+        <h1>Créer un compte</h1>        
     {% endif %}
 {% endblock %}
 {% block header_img %}{% endblock %}
 
 {% block body %}
     <div class="row">
-        {{ form(form) }}
+        {{ form_errors(form) }}
+
+        {{ form_start(form, { attr: { id: form.vars.id }}) }}
+
+            {{ form_row(form.username) }}
+
+            {{ form_row(form.email) }}
+
+            {% if app.user == user %}
+                <div class="mt-5 fs-5">
+                    <p class="m-0">Modification de mot de passe (laisser vide pour conserver le mot de passe actuel)</p>
+                </div>
+
+                {{ form_row(form.currentPassword) }}
+
+                {{ form_row(form.newPassword, { label: false }) }}
+            {% else %}
+                {% do form.currentPassword.setRendered %}
+                {% do form.newPassword.setRendered %}
+            {% endif %}
+
+            {# Add the roles field only if the current user is an admin #}
+            {% if app.user.admin %}
+                {{ form_row(form.roles, { label: false }) }}
+            {% else %}
+                {% do form.roles.setRendered %}
+            {% endif %}
+
+        {{ form_end(form) }}
     </div>
 
     <button type="submit" form="{{ form.vars.id }}" class="btn btn-success float-end">{{ user ? 'Modifier' : 'Ajouter' }}</button>

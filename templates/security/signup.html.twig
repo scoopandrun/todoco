@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block header_title %}
+  <h1>Créer un compte</h1>
+{% endblock %}
+{% block header_img %}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        {{ form_errors(form) }}
+
+        {{ form_start(form, { attr: { id: form.vars.id }}) }}
+
+            {{ form_row(form.username) }}
+
+            {{ form_row(form.email) }}
+
+            {{ form_row(form.newPassword, { label: false }) }}
+
+            {% do form.roles.setRendered %}
+
+        {{ form_end(form) }}
+    </div>
+
+    <button type="submit" form="{{ form.vars.id }}" class="btn btn-success float-end">Créer un compte</button>
+{% endblock %}
