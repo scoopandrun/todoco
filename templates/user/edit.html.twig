@@ -48,4 +48,11 @@
     </div>
 
     <button type="submit" form="{{ form.vars.id }}" class="btn btn-success float-end">{{ user ? 'Modifier' : 'Créer un compte' }}</button>
+    
+    {% if is_granted('USER_DELETE', user) %}
+        <form action="{{ path('user.delete', { id: user.id }) }}" method="post">
+            <input type="hidden" name="_method" value="DELETE">
+            <button class="btn btn-danger float-start" id="delete-account">Supprimer le compte</button>
+        </form>
+    {% endif %}
 {% endblock %}
