@@ -1,15 +1,17 @@
 <?php
 
-namespace Tests\App\Controller;
+namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class DefaultControllerTest extends WebTestCase
 {
+    use UsersTrait;
+
     public function testUnauthenticatedIndexReturnsUnauthorizedResponse(): void
     {
         // Given
-        $client = static::createClient();
+        $client = $this->getUnauthenticatedClient(followRedirects: false);
         $method = 'GET';
         $url = '/';
 
@@ -18,16 +20,12 @@ class DefaultControllerTest extends WebTestCase
 
         // Then
         $this->assertResponseStatusCodeSame(401);
-        // $this->assertResponseRedirects("http://localhost/login");
     }
 
     public function testAuthenticatedIndexReturns200(): void
     {
         // Given
-        $client = static::createClient([], [
-            'PHP_AUTH_USER' => 'User1',
-            'PHP_AUTH_PW' => 'pass123',
-        ]);
+        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
         $method = 'GET';
         $url = '/';
 

@@ -1,102 +1,88 @@
 <?php
 
-namespace Tests\App\Controller;
+namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class UserControllerTest extends WebTestCase
 {
-    private $user;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->user = [
-            'username' => 'User1',
-            'password' => 'pass123',
-        ];
-    }
+    use UsersTrait;
 
     public function testUsersPageIsUp(): void
     {
         // Given
-        $client = static::createClient([], [
-            'PHP_AUTH_USER' => $this->user['username'],
-            'PHP_AUTH_PW' => $this->user['password'],
-        ]);
+        $client = $this->getAdminClient(followRedirects: false);
 
         // When
         $client->request('GET', '/users');
 
         // Then
         $this->assertResponseIsSuccessful();
-        // $this->assertResponseStatusCodeSame(200);
+    }
+
+    public function testUnauthenticatedAccessReturnsUnauthorizedResponse(): void
+    {
+        // Given
+        $client = $this->getUnauthenticatedClient(followRedirects: false);
+
+        // When
+        $client->request('GET', '/users');
+
+        // Then
+        $this->assertResponseStatusCodeSame(401);
+    }
+
+    public function testNonAdminAccessReturnsForbiddenResponse(): void
+    {
+        // Given
+        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
+
+        // When
+        $client->request('GET', '/users');
+
+        // Then
+        $this->assertResponseStatusCodeSame(403);
     }
 
     /**
-     * @return (string|string[]|null)[] Info about the created user.
+     * @return array<string, int|string> Info about the created user.
      */
-    public function testUserCanBeCreated(): array
+    public function testAdminCanCreateAUser(): void
     {
         // Given
-        $client = static::createClient();
-        $newUsername = 'User2';
-        $newUserPassword = 'pass123';
-        $newUserEmail = 'user2@example.com';
+        $client = $this->getAdminClient(followRedirects: false);
+        $user = $this->createRandomUser(persist: false);
 
         // When
         $crawler = $client->request('GET', '/users/create');
-
-        $form = $crawler->selectButton('Ajouter')->form();
-        $form['user[username]'] = $newUsername;
-        $form['user[password][first]'] = $newUserPassword;
-        $form['user[password][second]'] = $newUserPassword;
-        $form['user[email]'] = $newUserEmail;
-
+        $form = $crawler->selectButton('Créer un compte')->form();
+        $form['user[username]'] = $user->getUsername();
+        $form['user[newPassword][first]'] = $user->getPassword();
+        $form['user[newPassword][second]'] = $user->getPassword();
+        $form['user[email]'] = $user->getEmail();
         $client->submit($form);
 
         // Then
         $this->assertResponseRedirects('/users');
         $crawler = $client->followRedirect();
-        $this->assertSelectorTextContains('.alert-success', 'L\'utilisateur a bien été ajouté.');
-        $this->assertSelectorTextContains('table', $newUsername);
-        $this->assertSelectorTextContains('table', $newUserEmail);
-        // $this->assertContains("L'utilisateur a bien été ajouté.", [$crawler->filter('div.alert-success')->text()]);
-        // $this->assertContains($newUsername, [$crawler->filter('table')->text()]);
-        // $this->assertContains($newUserEmail, [$crawler->filter('table')->text()]);
-
-        // Get ID of the created user
-        $link = $crawler->filter('table')->filter("td:contains('{$newUsername}')")->siblings()->last()->children()->first()->attr('href');
-        $userId = preg_replace('/[^0-9]/', '', $link);
-
-        // Return user info
-        return [
-            'username' => $newUsername,
-            'password' => $newUserPassword,
-            'email' => $newUserEmail,
-            'id' => $userId,
-        ];
+        $this->assertSelectorTextContains('.alert-success', "L'utilisateur a bien été ajouté.");
+        $this->assertSelectorTextContains('table', $user->getUsername());
+        $this->assertSelectorTextContains('table', $user->getEmail());
     }
 
-    /**
-     * @depends testUserCanBeCreated
-     * 
-     * @param array $userInfo User info.
-     */
-    public function testUserCanBeEdited($userInfo): void
+    public function testAdminCanEditAUser(): void
     {
         // Given
-        $client = static::createClient();
-        $editedUsername = $userInfo['username'] . 'edited';
-        $editedEmail = str_replace('@', 'edited@', $userInfo['email']);
+        $client = $this->getAdminClient(followRedirects: false);
+        $user = $this->createRandomUser(persist: true);
+        $editedUsername = $user->getUsername() . 'edited';
+        $editedEmail = str_replace('@', 'edited@', $user->getEmail());
 
         // When
-        $crawler = $client->request('GET', "/users/{$userInfo['id']}/edit");
+        $crawler = $client->request('GET', "/users/{$user->getId()}");
 
         $form = $crawler->selectButton('Modifier')->form();
         $form['user[username]'] = $editedUsername;
-        $form['user[password][first]'] = $userInfo['password'];
-        $form['user[password][second]'] = $userInfo['password'];
         $form['user[email]'] = $editedEmail;
 
         $client->submit($form);
@@ -104,11 +90,129 @@ class UserControllerTest extends WebTestCase
         // Then
         $this->assertResponseRedirects('/users');
         $crawler = $client->followRedirect();
-        $this->assertSelectorTextContains('.alert-success', 'L\'utilisateur a bien été modifié');
+        $this->assertSelectorTextContains('.alert-success', "L'utilisateur a bien été modifié.");
         $this->assertSelectorTextContains('table', $editedUsername);
         $this->assertSelectorTextContains('table', $editedEmail);
-        // $this->assertContains("L'utilisateur a bien été modifié", [$crawler->filter('div.alert-success')->text()]);
-        // $this->assertContains($editedUsername, [$crawler->filter('table')->text()]);
-        // $this->assertContains($editedEmail, [$crawler->filter('table')->text()]);
+    }
+
+    public function testUserCanAccessTheirProfile(): void
+    {
+        // Given
+        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
+
+        // When
+        $client->request('GET', '/users/me');
+
+        // Then
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testUserCannotChangePasswordWithoutCurrentPassword(): void
+    {
+        // Given
+        $client = $this->getAuthenticatedClient('User1', followRedirects: true);
+        $newPassword = bin2hex(random_bytes(16));
+
+        // When
+        $crawler = $client->request('GET', '/users/me');
+        $form = $crawler->selectButton('Modifier')->form();
+        $form['user[newPassword][first]'] = $newPassword;
+        $form['user[newPassword][second]'] = $newPassword;
+        $client->submit($form);
+
+        // Then
+        $this->assertAnySelectorTextContains('.invalid-feedback', "Vous devez entrer votre mot de passe actuel pour définir un nouveau mot de passe.");
+    }
+
+    public function testUserCannotChangePasswordWithIncorrectCurrentPassword(): void
+    {
+        // Given
+        $client = $this->getAuthenticatedClient('User1', followRedirects: true);
+        $newPassword = bin2hex(random_bytes(16));
+        $currentPassword = 'incorrect';
+
+        // When
+        $crawler = $client->request('GET', '/users/me');
+        $form = $crawler->selectButton('Modifier')->form();
+        $form['user[currentPassword]'] = $currentPassword;
+        $form['user[newPassword][first]'] = $newPassword;
+        $form['user[newPassword][second]'] = $newPassword;
+        $client->submit($form);
+
+        // Then
+        $this->assertAnySelectorTextContains('.invalid-feedback', "Votre mot de passe actuel est incorrect.");
+    }
+
+    public function testUserCanEditTheirProfile(): void
+    {
+        // Given
+        $client = $this->getUnauthenticatedClient(followRedirects: true);
+        $user = $this->createRandomUser(persist: true);
+        $client->loginUser($user);
+        $editedUsername = $user->getUsername() . 'edited';
+        $editedEmail = str_replace('@', 'edited@', $user->getEmail());
+        $newPassword = bin2hex(random_bytes(16));
+
+        // When
+        $crawler = $client->request('GET', '/users/me');
+        $form = $crawler->selectButton('Modifier')->form();
+        $form['user[username]'] = $editedUsername;
+        $form['user[email]'] = $editedEmail;
+        $form['user[currentPassword]'] = $user->getCurrentPassword();
+        $form['user[newPassword][first]'] = $newPassword;
+        $form['user[newPassword][second]'] = $newPassword;
+        $client->submit($form);
+
+        // Then
+        $this->assertSelectorTextContains('.alert-success', "Votre compte a bien été modifié.");
+        $this->assertSelectorTextContains('h1', $editedUsername);
+    }
+
+    public function testUserCannotDeleteAnotherUser(): void
+    {
+        // Given
+        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $user = $this->createRandomUser(persist: true);
+
+        // When
+        $client->request('DELETE', "/users/{$user->getId()}");
+
+        // Then
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testUserCanDeleteTheirOwnAccount(): void
+    {
+        // Given
+        $client = $this->getUnauthenticatedClient(followRedirects: false);
+        $user = $this->createRandomUser(persist: true);
+        $client->loginUser($user);
+
+        // When
+        $crawler = $client->request('GET', '/users/me');
+        $deleteForm = $crawler->filter('#delete-account')->form();
+        $client->submit($deleteForm);
+
+        // Then
+        $this->assertResponseRedirects('/login');
+        $client->followRedirect();
+        $this->assertSelectorTextContains('.alert-success', "Votre compte a bien été supprimé.");
+    }
+
+    public function testAdminCanDeleteAUserAccount(): void
+    {
+        // Given
+        $client = $this->getAdminClient(followRedirects: false);
+        $user = $this->createRandomUser(persist: true);
+
+        // When
+        $client->request('DELETE', "/users/{$user->getId()}");
+
+        // Then
+        $this->assertResponseRedirects('/users');
+        $client->followRedirect();
+        $this->assertSelectorTextContains('.alert-success', "L'utilisateur a bien été supprimé.");
+        $this->assertSelectorTextNotContains('table', $user->getUsername());
+        $this->assertSelectorTextNotContains('table', $user->getEmail());
     }
 }

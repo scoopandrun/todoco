@@ -5,9 +5,11 @@
 {% block header_title %}<h1>Liste des utilisateurs</h1>{% endblock %}
 
 {% block body %}
+    <a href="{{ path('user.create') }}" class="btn btn-primary mb-5">Créer un utilisateur</a>
+
     {% if users|length == 0 %}
         <div class="alert alert-warning" role="alert">
-            Il n'y a pas encore d'utilisateur enregistré. <a href="{{ path('user.create') }}" class="btn btn-warning pull-right">Créer un utilisateur</a>
+            Il n'y a pas encore d'utilisateur enregistré. <a href="{{ path('user.create') }}" class="btn btn-warning float-end">Créer un utilisateur</a>
         </div>
     {% else %}
         <div class="row">
@@ -16,7 +18,7 @@
                 <tr>
                     <th>#</th>
                     <th>Nom d'utilisateur</th>
-                    <th>Adresse d'utilisateur</th>
+                    <th>Adresse e-mail</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -24,10 +26,25 @@
                 {% for user in users %}
                     <tr>
                         <th scope="row">{{ loop.index }}</th>
-                        <td>{{ user.username }}</td>
+                        <td>{{ user.username }} {% if user.admin %}<span class="badge text-bg-dark">Admin</span>{% endif %}
+                        </td>
                         <td>{{ user.email }}</td>
                         <td>
-                            <a href="{{ path('user.edit', {'id' : user.id}) }}" class="btn btn-success btn-sm">Edit</a>
+                            {% if is_granted('USER_EDIT', user) %}
+                                <a href="{{ path('user.edit', {'id' : user.id}) }}" class="btn btn-success btn-sm">Modifier</a>
+                            {% endif %}
+
+                            {% if is_granted('USER_DELETE', user) %}
+                                <form action="{{ path('user.delete', { id: user.id }) }}" method="post" class="d-inline">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button
+                                        class="btn btn-danger btn-sm"
+                                        id="user-{{ user.id }}-delete"
+                                        data-controller="delete-button"
+                                        data-confirmation="Confirmez-vous la suppression de cet utilisateur ?"
+                                    >Supprimer</button>
+                                </form>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

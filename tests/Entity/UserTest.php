@@ -1,11 +1,13 @@
 <?php
 
+namespace App\Tests\Entity;
+
 use App\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase
 {
-    public function testGetId()
+    public function testGetId(): void
     {
         // Given
         $user = new User();
@@ -14,7 +16,7 @@ class UserTest extends TestCase
         $this->assertNull($user->getId());
     }
 
-    public function testGetUsername()
+    public function testGetUsername(): void
     {
         // Given
         $user = new User();
@@ -23,7 +25,7 @@ class UserTest extends TestCase
         $this->assertNull($user->getUsername());
     }
 
-    public function testSetUsername()
+    public function testSetUsername(): void
     {
         // Given
         $user = new User();
@@ -36,16 +38,16 @@ class UserTest extends TestCase
         $this->assertEquals($username, $user->getUsername());
     }
 
-    public function testGetPassword()
+    public function testGetCurrentPassword(): void
     {
         // Given
         $user = new User();
 
         // Then
-        $this->assertNull($user->getPassword());
+        $this->assertNull($user->getCurrentPassword());
     }
 
-    public function testSetPassword()
+    public function testSetCurrentPassword(): void
     {
         // Given
         $user = new User();
@@ -58,7 +60,51 @@ class UserTest extends TestCase
         $this->assertEquals($password, $user->getPassword());
     }
 
-    public function testGetEmail()
+    public function testGetPlainPassword(): void
+    {
+        // Given
+        $user = new User();
+
+        // Then
+        $this->assertNull($user->getNewPassword());
+    }
+
+    public function testSetPlainPassword(): void
+    {
+        // Given
+        $user = new User();
+        $password = 'test_password';
+
+        // When
+        $user->setPassword($password);
+
+        // Then
+        $this->assertEquals($password, $user->getPassword());
+    }
+
+    public function testGetPassword(): void
+    {
+        // Given
+        $user = new User();
+
+        // Then
+        $this->assertNull($user->getPassword());
+    }
+
+    public function testSetPassword(): void
+    {
+        // Given
+        $user = new User();
+        $password = 'test_password';
+
+        // When
+        $user->setPassword($password);
+
+        // Then
+        $this->assertEquals($password, $user->getPassword());
+    }
+
+    public function testGetEmail(): void
     {
         // Given
         $user = new User();
@@ -67,7 +113,7 @@ class UserTest extends TestCase
         $this->assertNull($user->getEmail());
     }
 
-    public function testSetEmail()
+    public function testSetEmail(): void
     {
         // Given
         $user = new User();
@@ -80,7 +126,7 @@ class UserTest extends TestCase
         $this->assertEquals($email, $user->getEmail());
     }
 
-    public function testGetRoles()
+    public function testGetRoles(): void
     {
         // Given
         $user = new User();
@@ -90,12 +136,31 @@ class UserTest extends TestCase
         $this->assertEquals($expectedRoles, $user->getRoles());
     }
 
-    public function testEraseCredentials()
+    public function testSetRoles(): void
     {
         // Given
         $user = new User();
+        $roles = ['ROLE_ADMIN'];
+        $expectedRoles = ['ROLE_ADMIN', 'ROLE_USER'];
+
+        // When
+        $user->setRoles($roles);
 
         // Then
-        $this->assertNull($user->eraseCredentials());
+        $this->assertEquals($expectedRoles, $user->getRoles());
+    }
+
+    public function testEraseCredentials(): void
+    {
+        // Given
+        $user = new User();
+        $reflection = new \ReflectionClass($user);
+
+        // When
+        $user->eraseCredentials();
+
+        // Then
+        $this->assertNull($reflection->getProperty('newPassword')->getValue($user));
+        $this->assertNull($reflection->getProperty('currentPassword')->getValue($user));
     }
 }

@@ -41,7 +41,11 @@ fixtures: ## Reset the database and load fixtures
 	@echo "Done"
 
 test: ## Launch unit tests
-	vendor/bin/phpunit
+	php bin/console --env=test doctrine:database:drop --force --if-exists
+	php bin/console --env=test doctrine:database:create
+	php bin/console --env=test doctrine:schema:create
+	php bin/console --env=test doctrine:fixtures:load --no-interaction
+	php bin/phpunit --coverage-html public/tests --testdox
 
 clean:
 	php bin/console doctrine:database:drop --force --if-exists

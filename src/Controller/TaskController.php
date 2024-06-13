@@ -3,55 +3,61 @@
 namespace App\Controller;
 
 use App\Entity\Task;
+use App\Entity\User;
 use App\Form\TaskType;
+use App\Repository\TaskRepository;
+use App\Security\Voter\TaskVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Route("/tasks", name="task")
- */
+#[Route('/tasks', name: 'task')]
 class TaskController extends AbstractController
 {
-    /**
-     * @Route("", name=".list", methods={"GET"})
-     */
-    public function list(EntityManagerInterface $entityManager): Response
+    #[Route(path: '', name: '.list', methods: ['GET'])]
+    #[IsGranted(TaskVoter::LIST)]
+    public function list(TaskRepository $taskRepository): Response
     {
-        $tasks = $entityManager->getRepository(Task::class)->findAll();
+        $tasks = $taskRepository->findAll();
         return $this->render('task/list.html.twig', ['tasks' => $tasks]);
     }
 
-    /**
-     * @Route("/create", name=".create", methods={"GET", "POST"})
-     */
+    #[Route(path: '/create', name: '.create', methods: ['GET', 'POST'])]
+    #[IsGranted(TaskVoter::CREATE)]
     public function create(Request $request, EntityManagerInterface $entityManager): Response
     {
         $task = new Task();
 
-        $form = $this->createForm(TaskType::class, $task);
+        $form = $this->createForm(TaskType::class, $task, ['method' => 'POST']);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var User $author */
+            $author = $this->getUser();
+            $task->setAuthor($author);
+
             $entityManager->persist($task);
             $entityManager->flush();
 
-            $this->addFlash('success', 'La tâche a été bien été ajoutée.');
+            $this->addFlash('success', 'La tâche a bien été ajoutée.');
 
             return $this->redirectToRoute('task.list');
         }
 
-        return $this->render('task/create.html.twig', ['form' => $form->createView()]);
+        return $this->render('task/edit.html.twig', [
+            'form' => $form,
+        ]);
     }
 
-    /**
-     * @Route("/{id}/edit", name=".edit", methods={"GET", "POST"})
-     */
+    #[Route(path: '/{id}/edit', name: '.edit', methods: ['GET', 'PUT'])]
     public function edit(Task $task, Request $request, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(TaskType::class, $task);
+        $this->denyAccessUnlessGranted(TaskVoter::EDIT, $task);
+
+        $form = $this->createForm(TaskType::class, $task, ['method' => 'PUT']);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -63,29 +69,30 @@ class TaskController extends AbstractController
         }
 
         return $this->render('task/edit.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'task' => $task,
         ]);
     }
 
-    /**
-     * @Route("/{id}/toggle", name=".toggle", methods={"GET"})
-     */
+    #[Route(path: '/{id}', name: '.toggle', methods: ['PATCH'])]
     public function toggle(Task $task, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted(TaskVoter::TOGGLE, $task);
+
         $task->toggle(!$task->isDone());
         $entityManager->flush();
 
-        $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme faite.', $task->getTitle()));
+        $status = $task->isDone() ? 'faite' : 'non terminée';
+        $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme %s.', $task->getTitle(), $status));
 
         return $this->redirectToRoute('task.list');
     }
 
-    /**
-     * @Route("/{id}/delete", name=".delete", methods={"GET"})
-     */
+    #[Route(path: '/{id}', name: '.delete', methods: ['DELETE'])]
     public function delete(Task $task, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted(TaskVoter::DELETE, $task, "Vous ne pouvez pas supprimer une tâche que vous n'avez pas créée.");
+
         $entityManager->remove($task);
         $entityManager->flush();
 
