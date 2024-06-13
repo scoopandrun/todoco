@@ -9,7 +9,7 @@ This repository is primarily a way of sharing code with the tutor.
 
 ## Installation
 
-This project uses [Composer](https://getcomposer.org) with PHP `^7.4`.
+This project uses [Composer](https://getcomposer.org) with PHP `>=8.3`.
 
 Configure your database and email server in `/app/config/parameters.yml`.
 
@@ -46,11 +46,14 @@ php bin/console doctrine:fixtures:load
 
 By default, the fixtures create 2 permanent users :
 
+- Admin
+  - email: admin<span>@</span>example.com
+  - password: "admin"
 - User 1
   - email: user1<span>@</span>example.com
-  - password: "password"
+  - password: "pass"
 - User 2
   - email: user2<span>@</span>example.com
-  - password: "password"
+  - password: "pass"
 
-You can update the initial users information in the User data fixture (`src/DataFixtures/UserFixtures.php`).
+You can update the initial users information in the User data fixture (`src/DataFixtures/AppFixtures.php`).

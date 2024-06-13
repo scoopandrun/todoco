@@ -8,16 +8,17 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * @extends Voter<string, Task>
+ * @extends Voter<string, Task|null>
  */
-class TaskVoter extends Voter
+final class TaskVoter extends Voter
 {
-    public const LIST = 'TASK_LIST';
-    public const CREATE = 'TASK_CREATE';
-    public const EDIT = 'TASK_EDIT';
-    public const TOGGLE = 'TASK_TOGGLE';
-    public const DELETE = 'TASK_DELETE';
+    public const string LIST = 'TASK_LIST';
+    public const string CREATE = 'TASK_CREATE';
+    public const string EDIT = 'TASK_EDIT';
+    public const string TOGGLE = 'TASK_TOGGLE';
+    public const string DELETE = 'TASK_DELETE';
 
+    #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
         if ($subject === null) {
@@ -31,17 +32,14 @@ class TaskVoter extends Voter
         return false;
     }
 
+    #[\Override]
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         /** @var ?User */
         $user = $token->getUser();
 
-        // if the user is anonymous, do not grant access
+        // If the user is anonymous, do not grant access
         if (!$user instanceof User) {
-            return false;
-        }
-
-        if (!is_null($subject) && !$subject instanceof Task) {
             return false;
         }
 
@@ -60,7 +58,7 @@ class TaskVoter extends Voter
                 return true;
 
             case self::DELETE:
-                return (is_null($subject->getAuthor()) && $user->isAdmin()) || $user === $subject->getAuthor();
+                return $user->isAdmin() || $user === $subject->getAuthor();
         }
 
         // @codeCoverageIgnoreStart
