@@ -29,6 +29,9 @@
                 {{ form_row(form.currentPassword) }}
 
                 {{ form_row(form.newPassword, { label: false }) }}
+            {% elseif user == null %}
+                {{ form_row(form.newPassword, { label: false }) }}
+                {% do form.currentPassword.setRendered %}
             {% else %}
                 {% do form.currentPassword.setRendered %}
                 {% do form.newPassword.setRendered %}
@@ -44,5 +47,5 @@
         {{ form_end(form) }}
     </div>
 
-    <button type="submit" form="{{ form.vars.id }}" class="btn btn-success float-end">{{ user ? 'Modifier' : 'Ajouter' }}</button>
+    <button type="submit" form="{{ form.vars.id }}" class="btn btn-success float-end">{{ user ? 'Modifier' : 'Créer un compte' }}</button>
 {% endblock %}

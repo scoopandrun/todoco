@@ -2,9 +2,8 @@
 
 namespace App\Controller;
 
-use App\DTO\UserInformationDTO;
 use App\Entity\User;
-use App\Form\RegistrationForm;
+use App\Form\UserType;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,17 +28,20 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('homepage');
         }
 
-        $userInformationDTO = new UserInformationDTO();
+        $user = new User();
 
-        $form = $this->createForm(RegistrationForm::class, $userInformationDTO, ['method' => 'POST']);
+        $form = $this->createForm(UserType::class, $user, [
+            'method' => 'POST',
+            'validation_groups' => ['Default', 'registration'],
+            'new_password_label' => 'Mot de passe',
+            'new_password_required' => true,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $user = new User();
+            $userService->setPassword($user);
 
-            $userService->fillInUserEntityFromUserInformationDTO($userInformationDTO, $user);
-
-            $userInformationDTO->eraseCredentials();
+            $user->eraseCredentials();
 
             $em->persist($user);
             $em->flush();

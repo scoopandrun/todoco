@@ -17,6 +17,7 @@
 
             {{ form_row(form.newPassword, { label: false }) }}
 
+            {% do form.currentPassword.setRendered %}
             {% do form.roles.setRendered %}
 
         {{ form_end(form) }}

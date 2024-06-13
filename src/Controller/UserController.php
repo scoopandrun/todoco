@@ -2,12 +2,10 @@
 
 namespace App\Controller;
 
-use App\DTO\UserInformationDTO;
 use App\Entity\User;
-use App\Form\RegistrationForm;
-use App\Form\UserAccountForm;
+use App\Form\UserType;
 use App\Repository\UserRepository;
-use App\Security\Voter\UsersVoter;
+use App\Security\Voter\UserVoter;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class UserController extends AbstractController
 {
     #[Route(path: '', name: '.list', methods: ['GET'])]
-    #[IsGranted(UsersVoter::LIST)]
+    #[IsGranted(UserVoter::LIST)]
     public function list(UserRepository $userRepository): Response
     {
         $users = $userRepository->findAll();
@@ -31,23 +29,26 @@ class UserController extends AbstractController
      * This route is used when an admin wants to create a new user.
      */
     #[Route(path: '/create', name: '.create', methods: ['GET', 'POST'])]
-    #[IsGranted(UsersVoter::CREATE)]
+    #[IsGranted(UserVoter::CREATE)]
     public function create(
         Request $request,
         EntityManagerInterface $em,
         UserService $userService,
     ): Response {
-        $userInformationDTO = new UserInformationDTO();
+        $user = new User();
 
-        $form = $this->createForm(RegistrationForm::class, $userInformationDTO, ['method' => 'POST']);
+        $form = $this->createForm(UserType::class, $user, [
+            'method' => 'POST',
+            'validation_groups' => ['Default', 'registration'],
+            'new_password_label' => 'Mot de passe',
+            'new_password_required' => true,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $user = new User();
+            $userService->setPassword($user);
 
-            $userService->fillInUserEntityFromUserInformationDTO($userInformationDTO, $user);
-
-            $userInformationDTO->eraseCredentials();
+            $user->eraseCredentials();
 
             $em->persist($user);
             $em->flush();
@@ -66,18 +67,16 @@ class UserController extends AbstractController
         User $user,
         Request $request,
         EntityManagerInterface $em,
-        UserService $userService,
     ): Response {
-        $this->denyAccessUnlessGranted(UsersVoter::EDIT, $user);
+        $this->denyAccessUnlessGranted(UserVoter::EDIT, $user);
 
-        $userInformationDTO = $userService->makeUserInformationDTOFromEntity($user);
-
-        $form = $this->createForm(UserAccountForm::class, $userInformationDTO, ['method' => 'PUT']);
+        $form = $this->createForm(UserType::class, $user, [
+            'method' => 'PUT',
+            'validation_groups' => ['Default', 'account_update'],
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $userService->fillInUserEntityFromUserInformationDTO($userInformationDTO, $user);
-
             $em->flush();
 
             $this->addFlash('success', "L'utilisateur a bien été modifié.");
@@ -97,15 +96,17 @@ class UserController extends AbstractController
         EntityManagerInterface $em,
         UserService $userService,
     ): Response {
+        /** @var User $user */
         $user = $this->getUser();
 
-        $userInformationDTO = $userService->makeUserInformationDTOFromEntity($user);
-
-        $form = $this->createForm(UserAccountForm::class, $userInformationDTO, ['method' => 'PUT']);
+        $form = $this->createForm(UserType::class, $user, [
+            'method' => 'PUT',
+            'validation_groups' => ['Default', 'account_update'],
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $userService->fillInUserEntityFromUserInformationDTO($userInformationDTO, $user);
+            $userService->setPassword($user);
 
             $em->flush();
 
