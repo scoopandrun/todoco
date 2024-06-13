@@ -12,7 +12,7 @@ class TaskControllerTest extends WebTestCase
     public function testTasksPageIsUp(): void
     {
         // Given
-        $client = $this->getUser1Client();
+        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
 
         // When
         $client->request('GET', '/tasks');
@@ -24,7 +24,7 @@ class TaskControllerTest extends WebTestCase
     public function testUnauthenticatedAccessReturnsUnauthorizedResponse(): void
     {
         // Given
-        $client = $this->getUnauthenticatedClient();
+        $client = $this->getUnauthenticatedClient(followRedirects: false);
 
         // When
         $client->request('GET', '/tasks/create');
@@ -39,13 +39,13 @@ class TaskControllerTest extends WebTestCase
     public function testTaskCanBeCreated(): array
     {
         // Given
-        $client = $this->getUser1Client();
+        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
         $taskTitle = 'Test task' . uniqid();
         $taskContent = 'Test task content';
 
         // When
         $crawler = $client->request('GET', '/tasks/create');
-        $form = $crawler->filter('form[name=task]')->form();
+        $form = $crawler->selectButton('Ajouter')->form();
         $form['task[title]'] = $taskTitle;
         $form['task[content]'] = $taskContent;
         $client->submit($form);
@@ -75,7 +75,7 @@ class TaskControllerTest extends WebTestCase
     public function testTaskCanBeToggledDone(array $taskInfo): void
     {
         // Given
-        $client = $this->getUser1Client();
+        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
         $taskId = $taskInfo['id'];
         $taskTitle = $taskInfo['title'];
 
@@ -102,7 +102,7 @@ class TaskControllerTest extends WebTestCase
     public function testTaskCanBeToggledUndone(array $taskInfo): void
     {
         // Given
-        $client = $this->getUser1Client();
+        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
         $taskId = $taskInfo['id'];
         $taskTitle = $taskInfo['title'];
 
@@ -129,7 +129,7 @@ class TaskControllerTest extends WebTestCase
     public function testTaskCanBeEdited(array $taskInfo): void
     {
         // Given
-        $client = $this->getUser1Client();
+        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
         $taskId = $taskInfo['id'];
         $taskTitle = $taskInfo['title'];
         $taskContent = $taskInfo['content'];
@@ -138,7 +138,7 @@ class TaskControllerTest extends WebTestCase
 
         // When
         $crawler = $client->request('GET', "/tasks/{$taskId}/edit");
-        $form = $crawler->filter('form[name=task]')->form();
+        $form = $crawler->selectButton('Modifier')->form();
         $form['task[title]'] = $editedTaskTitle;
         $form['task[content]'] = $editedTaskContent;
         $client->submit($form);
@@ -159,7 +159,7 @@ class TaskControllerTest extends WebTestCase
     public function testTaskCanNotBeDeletedByOtherUser(array $taskInfo): void
     {
         // Given
-        $client = $this->getUser2Client();
+        $client = $this->getAuthenticatedClient('User2', followRedirects: false);
         $taskId = $taskInfo['id'];
 
         // When
@@ -174,10 +174,10 @@ class TaskControllerTest extends WebTestCase
      */
     #[Depends('testTaskCanBeCreated')]
     #[Depends('testTaskCanNotBeDeletedByOtherUser')]
-    public function testTaskCanBeDeleted(array $taskInfo): void
+    public function testTaskCanBeDeletedByAuthor(array $taskInfo): void
     {
         // Given
-        $client = $this->getUser1Client();
+        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
         $taskId = $taskInfo['id'];
 
         // When
@@ -195,7 +195,7 @@ class TaskControllerTest extends WebTestCase
     public function testAnonymousTaskCannotBeDeletedByOtherUser(): void
     {
         // Given
-        $client = $this->getUser1Client();
+        $client = $this->getAuthenticatedClient('User2', followRedirects: false);
 
         // When
         $client->request('DELETE', '/tasks/1');
@@ -204,10 +204,10 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(403);
     }
 
-    public function testAnonymousCanBeDeletedByAdmin(): void
+    public function testAnonymousTaskCanBeDeletedByAdmin(): void
     {
         // Given
-        $client = $this->getAdminClient();
+        $client = $this->getAdminClient(followRedirects: false);
 
         // When
         $client->request('DELETE', '/tasks/1');

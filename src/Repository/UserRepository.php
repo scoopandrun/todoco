@@ -29,6 +29,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * 
      * @codeCoverageIgnore
      */
+    #[\Override]
     public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         if (!$user instanceof User) {

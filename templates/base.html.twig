@@ -15,6 +15,9 @@
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+        <!-- Custom CSS -->
+        <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
         <!-- Bootstrap Core JavaScript -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 
@@ -36,19 +39,26 @@
             <div class="d-flex justify-content-between align-items-center mb-1 gap-1">
                 {% if is_granted('TASK_CREATE') %}
                     <a href="{{ path('task.create') }}" class="btn btn-info">Créer une tâche</a>
-
-                {% if is_granted('USER_CREATE') %}
-                    <a href="{{ path('user.create') }}" class="btn btn-primary">Créer un utilisateur</a>
                 {% endif %}
 
-                    <span class="ms-auto pe-3">{{ app.user.username }}</span>
-
-                    <a href="{{ path('logout') }}" class="btn btn-danger">Se déconnecter</a>
+                {% if is_granted('USER_LIST') %}
+                    <a href="{{ path('user.list') }}" class="btn btn-primary">Gérer les utilisateurs</a>
                 {% endif %}
 
-                {% if not app.user and 'login' != app.request.attributes.get('_route') %}
-                    <a href="{{ path('login') }}" class="btn btn-success">Se connecter</a>
-                {% endif %}
+                <span class="ms-auto">                
+                    {% if app.user %}
+                        <a href="{{ path('user.me') }}" class="pe-3">{{ app.user.username }}</a>
+                        <a href="{{ path('logout') }}" class="btn btn-danger">Se déconnecter</a>
+                    {% endif %}
+
+                    {% if not app.user and 'login' != app.request.attributes.get('_route') %}
+                        <a href="{{ path('login') }}" class="btn btn-primary">Se connecter</a>
+                    {% endif %}
+
+                    {% if not app.user and 'signup' != app.request.attributes.get('_route') %}
+                        <a href="{{ path('signup') }}" class="btn btn-info">Créer un compte</a>
+                    {% endif %}
+                </span>
             </div>
 
             <div class="row">

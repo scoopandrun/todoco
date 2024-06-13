@@ -7,14 +7,15 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * @extends Voter<string, User>
+ * @extends Voter<string, User|null>
  */
-class UsersVoter extends Voter
+final class UserVoter extends Voter
 {
-    public const LIST = 'USER_LIST';
-    public const CREATE = 'USER_CREATE';
-    public const EDIT = 'USER_EDIT';
+    public const string LIST = 'USER_LIST';
+    public const string CREATE = 'USER_CREATE';
+    public const string EDIT = 'USER_EDIT';
 
+    #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
         if ($subject === null) {
@@ -28,17 +29,14 @@ class UsersVoter extends Voter
         return false;
     }
 
+    #[\Override]
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         /** @var ?User */
         $user = $token->getUser();
 
-        // if the user is anonymous, do not grant access
+        // If the user is anonymous, do not grant access
         if (!$user instanceof User) {
-            return false;
-        }
-
-        if (!is_null($subject) && !$subject instanceof User) {
             return false;
         }
 
@@ -48,6 +46,7 @@ class UsersVoter extends Voter
                 return $user->isAdmin();
 
             case self::CREATE:
+                // An admin can create an account
                 return $user->isAdmin();
 
             case self::EDIT:

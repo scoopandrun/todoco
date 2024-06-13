@@ -2,13 +2,15 @@
 
 namespace App\Entity;
 
+use App\Validator\Constraints as AppAssert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\Validator\Constraints as SecurityAssert;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table]
@@ -23,6 +25,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string', length: 25, unique: true)]
     #[Assert\NotBlank(message: "Vous devez saisir un nom d'utilisateur.")]
+    #[Assert\Type('string')]
+    #[Assert\Length(
+        min: 3,
+        max: 25,
+        minMessage: "Le nom d'utilisateur doit contenir au moins {{ limit }} caractères.",
+        maxMessage: "Le nom d'utilisateur doit contenir au maximum {{ limit }} caractères."
+    )]
     private ?string $username = null;
 
     #[ORM\Column(type: 'string', length: 254)]
@@ -36,13 +45,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?array $roles = [];
 
+    #[Assert\When(
+        expression: 'this.getNewPassword()',
+        groups: ['account_update'],
+        constraints: [
+            new Assert\Sequentially(
+                [
+                    new Assert\Type('string'),
+                    new Assert\NotBlank(message: 'Vous devez entrer votre mot de passe actuel pour définir un nouveau mot de passe.'),
+                    new SecurityAssert\UserPassword(message: 'Votre mot de passe actuel est incorrect.'),
+                ],
+                groups: ['account_update'],
+            ),
+        ],
+    )]
+    private ?string $currentPassword = null;
+
+    #[Assert\NotBlank(groups: ['registration'])]
+    #[AppAssert\PasswordRequirements()]
+    private ?string $newPassword = null;
+
     /**
      * @var string The hashed password
      */
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $password = null;
-
-    private ?string $plainPassword = null;
 
     /**
      * @var Collection<int, Task>
@@ -75,9 +102,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->username;
     }
 
-    public function setUsername(string $username): self
+    public function setUsername(string $username): static
     {
         $this->username = $username;
+
+        return $this;
+    }
+
+    public function getCurrentPassword(): ?string
+    {
+        return $this->currentPassword;
+    }
+
+    public function setCurrentPassword(#[\SensitiveParameter] string $currentPassword): static
+    {
+        $this->currentPassword = $currentPassword;
+
+        return $this;
+    }
+
+    public function getNewPassword(): ?string
+    {
+        return $this->newPassword;
+    }
+
+    public function setNewPassword(#[\SensitiveParameter] string $newPassword): static
+    {
+        $this->newPassword = $newPassword;
 
         return $this;
     }
@@ -87,7 +138,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(string $password): static
     {
         $this->password = $password;
 
@@ -99,7 +150,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    public function setEmail(string $email): self
+    public function setEmail(string $email): static
     {
         $this->email = $email;
 
@@ -135,7 +186,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
-        $this->plainPassword = null;
+        $this->newPassword = null;
+        $this->currentPassword = null;
     }
 
     /**

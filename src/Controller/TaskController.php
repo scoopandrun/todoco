@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Task;
+use App\Entity\User;
 use App\Form\TaskType;
 use App\Repository\TaskRepository;
 use App\Security\Voter\TaskVoter;
@@ -34,7 +35,9 @@ class TaskController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $task->setAuthor($this->getUser());
+            /** @var User $author */
+            $author = $this->getUser();
+            $task->setAuthor($author);
 
             $entityManager->persist($task);
             $entityManager->flush();
