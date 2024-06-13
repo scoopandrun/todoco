@@ -45,7 +45,12 @@
                             {% if is_granted('TASK_DELETE', task) %}                            
                                 <form action="{{ path('task.delete', {'id' : task.id }) }}" method="post">
                                     <input type="hidden" name="_method" value="DELETE">
-                                    <button class="btn btn-danger btn-sm" id="task-{{ task.id }}-delete">Supprimer</button>
+                                    <button
+                                        class="btn btn-danger btn-sm"
+                                        id="task-{{ task.id }}-delete"
+                                        data-controller="delete-button"
+                                        data-confirmation="Confirmez-vous la suppression de cette tâche ?"
+                                    >Supprimer</button>
                                 </form>
                             {% endif %}
                         </div>
