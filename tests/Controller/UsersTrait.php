@@ -102,7 +102,7 @@ trait UsersTrait
     private function createRandomUser(bool $persist = true): User
     {
         $username = 'User' . random_int(100, 999);
-        $password = bin2hex(random_bytes(8));
+        $password = bin2hex(random_bytes(16));
         $email = 'user' . random_int(100, 999) . '@example.com';
 
         return $this->createUser($username, $password, $email, $persist);

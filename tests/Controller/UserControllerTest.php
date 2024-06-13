@@ -112,7 +112,7 @@ class UserControllerTest extends WebTestCase
     {
         // Given
         $client = $this->getAuthenticatedClient('User1', followRedirects: true);
-        $newPassword = bin2hex(random_bytes(8));
+        $newPassword = bin2hex(random_bytes(16));
 
         // When
         $crawler = $client->request('GET', '/users/me');
@@ -129,7 +129,7 @@ class UserControllerTest extends WebTestCase
     {
         // Given
         $client = $this->getAuthenticatedClient('User1', followRedirects: true);
-        $newPassword = bin2hex(random_bytes(8));
+        $newPassword = bin2hex(random_bytes(16));
         $currentPassword = 'incorrect';
 
         // When
@@ -152,7 +152,7 @@ class UserControllerTest extends WebTestCase
         $client->loginUser($user);
         $editedUsername = $user->getUsername() . 'edited';
         $editedEmail = str_replace('@', 'edited@', $user->getEmail());
-        $newPassword = bin2hex(random_bytes(8));
+        $newPassword = bin2hex(random_bytes(16));
 
         // When
         $crawler = $client->request('GET', '/users/me');
