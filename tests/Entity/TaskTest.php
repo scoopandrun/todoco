@@ -3,6 +3,7 @@
 namespace App\Tests\Entity;
 
 use App\Entity\Task;
+use App\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 class TaskTest extends TestCase
@@ -91,15 +92,37 @@ class TaskTest extends TestCase
         $this->assertFalse($task->isDone());
     }
 
-    public function testToggle(): void
+    public function testSetIsDone(): void
     {
         // Given
         $task = new Task();
 
         // When
-        $task->toggle(true);
+        $task->setIsDone(true);
 
         // Then
         $this->assertTrue($task->isDone());
+    }
+
+    public function testGetAuthor(): void
+    {
+        // Given
+        $task = new Task();
+
+        // Then
+        $this->assertNull($task->getAuthor());
+    }
+
+    public function testSetAuthor(): void
+    {
+        // Given
+        $task = new Task();
+        $author = $this->createMock(User::class);
+
+        // When
+        $task->setAuthor($author);
+
+        // Then
+        $this->assertEquals($author, $task->getAuthor());
     }
 }

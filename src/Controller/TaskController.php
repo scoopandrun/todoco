@@ -79,7 +79,7 @@ class TaskController extends AbstractController
     {
         $this->denyAccessUnlessGranted(TaskVoter::TOGGLE, $task);
 
-        $task->toggle(!$task->isDone());
+        $task->setIsDone(!$task->isDone());
         $entityManager->flush();
 
         $status = $task->isDone() ? 'faite' : 'non terminée';
