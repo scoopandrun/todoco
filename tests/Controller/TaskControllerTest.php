@@ -2,17 +2,16 @@
 
 namespace App\Tests\Controller;
 
-use PHPUnit\Framework\Attributes\Depends;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class TaskControllerTest extends WebTestCase
 {
-    use UsersTrait;
+    use ClientTrait, TasksTrait, UsersTrait;
 
     public function testTasksPageIsUp(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
+        [$client] = $this->getAuthenticatedClient('User1', followRedirects: false);
 
         // When
         $client->request('GET', '/tasks');
@@ -33,111 +32,79 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(401);
     }
 
-    /**
-     * @return array<string, int|string> Info about the created task.
-     */
-    public function testTaskCanBeCreated(): array
+    public function testTaskCanBeCreated(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
-        $taskTitle = 'Test task' . uniqid();
-        $taskContent = 'Test task content';
+        [$client] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $task = $this->createRandomTask(persist: false);
 
         // When
         $crawler = $client->request('GET', '/tasks/create');
         $form = $crawler->selectButton('Ajouter')->form();
-        $form['task[title]'] = $taskTitle;
-        $form['task[content]'] = $taskContent;
+        $form['task[title]'] = $task->getTitle();
+        $form['task[content]'] = $task->getContent();
         $client->submit($form);
 
         // Then
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
         $this->assertSelectorTextContains('.alert-success', 'La tâche a bien été ajoutée.');
-        $this->assertSelectorTextContains('body', $taskTitle);
-        $this->assertSelectorTextContains('body', $taskContent);
-
-        // Get the ID of the created task
-        $taskId = (int) preg_replace('/[^0-9]/', '', $crawler->filter("a:contains('{$taskTitle}')")->attr('href'));
-
-        // Return info of the created task
-        return [
-            'title' => $taskTitle,
-            'content' => $taskContent,
-            'id' => $taskId,
-        ];
+        $this->assertSelectorTextContains('body', $task->getTitle());
+        $this->assertSelectorTextContains('body', $task->getContent());
     }
 
-    /**
-     * @param array<string, int|string> $taskInfo Info of the task to toggle.
-     */
-    #[Depends('testTaskCanBeCreated')]
-    public function testTaskCanBeToggledDone(array $taskInfo): void
+    public function testTaskCanBeToggledDone(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
-        $taskId = $taskInfo['id'];
-        $taskTitle = $taskInfo['title'];
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $task = $this->createRandomTask($user, persist: true);
 
         // When
         $crawler = $client->request('GET', '/tasks');
-        $toggleForm = $crawler->filter("#task-{$taskId}-toggle")->form();
+        $toggleForm = $crawler->filter("#task-{$task->getId()}-toggle")->form();
         $client->submit($toggleForm);
 
         // Then
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
-        $this->assertSelectorTextContains('.alert-success', "La tâche {$taskTitle} a bien été marquée comme faite.");
+        $this->assertSelectorTextContains('.alert-success', "La tâche {$task->getTitle()} a bien été marquée comme faite.");
         // Check if the task is marked as done
-        $icon = $crawler->filter("#task-{$taskId}-icon");
+        $icon = $crawler->filter("#task-{$task->getId()}-icon");
         $this->assertCount(1, $icon->filter('i.bi-check'));
         $this->assertCount(0, $icon->filter('i.bi-x'));
     }
 
-    /**
-     * @param array<string, int|string> $taskInfo Info of the task to toggle.
-     */
-    #[Depends('testTaskCanBeCreated')]
-    #[Depends('testTaskCanBeToggledDone')]
-    public function testTaskCanBeToggledUndone(array $taskInfo): void
+    public function testTaskCanBeToggledUndone(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
-        $taskId = $taskInfo['id'];
-        $taskTitle = $taskInfo['title'];
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $task = $this->createRandomTask($user, true, persist: true);
 
         // When
         $crawler = $client->request('GET', '/tasks');
-        $toggleForm = $crawler->filter("#task-{$taskId}-toggle")->first()->form();
+        $toggleForm = $crawler->filter("#task-{$task->getId()}-toggle")->first()->form();
         $client->submit($toggleForm);
 
         // Then
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
-        $this->assertSelectorTextContains('.alert-success', "La tâche {$taskTitle} a bien été marquée comme non terminée.");
+        $this->assertSelectorTextContains('.alert-success', "La tâche {$task->getTitle()} a bien été marquée comme non terminée.");
         // Check if the task is marked as undone
-        $icon = $crawler->filter("#task-{$taskId}-icon");
+        $icon = $crawler->filter("#task-{$task->getId()}-icon");
         $this->assertCount(0, $icon->filter('i.bi-check'));
         $this->assertCount(1, $icon->filter('i.bi-x'));
     }
 
-    /**
-     * @param array<string, int|string> $taskInfo Info of the task to edit.
-     */
-    #[Depends('testTaskCanBeCreated')]
-    #[Depends('testTaskCanBeToggledUndone')]
-    public function testTaskCanBeEdited(array $taskInfo): void
+    public function testTaskCanBeEdited(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
-        $taskId = $taskInfo['id'];
-        $taskTitle = $taskInfo['title'];
-        $taskContent = $taskInfo['content'];
-        $editedTaskTitle = $taskTitle . ' edited';
-        $editedTaskContent = $taskContent . ' edited';
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $task = $this->createRandomTask($user, persist: true);
+        $editedTaskTitle = $task->getTitle() . ' edited';
+        $editedTaskContent = $task->getContent() . ' edited';
 
         // When
-        $crawler = $client->request('GET', "/tasks/{$taskId}/edit");
+        $crawler = $client->request('GET', "/tasks/{$task->getId()}/edit");
         $form = $crawler->selectButton('Modifier')->form();
         $form['task[title]'] = $editedTaskTitle;
         $form['task[content]'] = $editedTaskContent;
@@ -151,54 +118,44 @@ class TaskControllerTest extends WebTestCase
         $this->assertSelectorTextContains('body', $editedTaskContent);
     }
 
-    /**
-     * @param array<string, int|string> $taskInfo Info of the task to delete.
-     */
-    #[Depends('testTaskCanBeCreated')]
-    #[Depends('testTaskCanBeEdited')]
-    public function testTaskCanNotBeDeletedByOtherUser(array $taskInfo): void
+    public function testTaskCanNotBeDeletedByOtherUser(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User2', followRedirects: false);
-        $taskId = $taskInfo['id'];
+        [$client] = $this->getAuthenticatedClient('User2', followRedirects: false);
+        $task = $this->createRandomTask($this->getUser('User1'), persist: true);
 
         // When
-        $client->request('DELETE', "/tasks/{$taskId}");
+        $client->request('DELETE', "/tasks/{$task->getId()}");
 
         // Then
         $this->assertResponseStatusCodeSame(403);
     }
 
-    /**
-     * @param array<string, int|string> $taskInfo Info of the task to delete.
-     */
-    #[Depends('testTaskCanBeCreated')]
-    #[Depends('testTaskCanNotBeDeletedByOtherUser')]
-    public function testTaskCanBeDeletedByAuthor(array $taskInfo): void
+    public function testTaskCanBeDeletedByAuthor(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
-        $taskId = $taskInfo['id'];
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $task = $this->createRandomTask($user, persist: true);
 
         // When
         $crawler = $client->request('GET', '/tasks');
-        $taskTitle = $crawler->filter("a[href='/tasks/{$taskId}/edit']")->text();
-        $deleteForm = $crawler->filter("#task-{$taskId}-delete")->first()->form();
+        $deleteForm = $crawler->filter("#task-{$task->getId()}-delete")->first()->form();
         $client->submit($deleteForm);
 
         // Then
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
-        $this->assertSelectorTextNotContains('body', $taskTitle);
+        $this->assertSelectorTextNotContains('body', $task->getTitle());
     }
 
     public function testAnonymousTaskCannotBeDeletedByOtherUser(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User2', followRedirects: false);
+        [$client] = $this->getAuthenticatedClient('User2', followRedirects: false);
+        $task = $this->createRandomTask(persist: true);
 
         // When
-        $client->request('DELETE', '/tasks/1');
+        $client->request('DELETE', "/tasks/{$task->getId()}");
 
         // Then
         $this->assertResponseStatusCodeSame(403);
@@ -208,9 +165,10 @@ class TaskControllerTest extends WebTestCase
     {
         // Given
         $client = $this->getAdminClient(followRedirects: false);
+        $task = $this->createRandomTask(persist: true);
 
         // When
-        $client->request('DELETE', '/tasks/1');
+        $client->request('DELETE', "/tasks/{$task->getId()}");
 
         // Then
         $this->assertResponseRedirects('/tasks');

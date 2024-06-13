@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class UserControllerTest extends WebTestCase
 {
-    use UsersTrait;
+    use ClientTrait;
 
     public function testUsersPageIsUp(): void
     {
@@ -35,7 +35,7 @@ class UserControllerTest extends WebTestCase
     public function testNonAdminAccessReturnsForbiddenResponse(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
+        [$client] = $this->getAuthenticatedClient('User1', followRedirects: false);
 
         // When
         $client->request('GET', '/users');
@@ -44,30 +44,27 @@ class UserControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(403);
     }
 
-    /**
-     * @return array<string, int|string> Info about the created user.
-     */
     public function testAdminCanCreateAUser(): void
     {
         // Given
         $client = $this->getAdminClient(followRedirects: false);
-        $user = $this->createRandomUser(persist: false);
+        $newUser = $this->createRandomUser(persist: false);
 
         // When
         $crawler = $client->request('GET', '/users/create');
         $form = $crawler->selectButton('Créer un compte')->form();
-        $form['user[username]'] = $user->getUsername();
-        $form['user[newPassword][first]'] = $user->getPassword();
-        $form['user[newPassword][second]'] = $user->getPassword();
-        $form['user[email]'] = $user->getEmail();
+        $form['user[username]'] = $newUser->getUsername();
+        $form['user[newPassword][first]'] = $newUser->getPassword();
+        $form['user[newPassword][second]'] = $newUser->getPassword();
+        $form['user[email]'] = $newUser->getEmail();
         $client->submit($form);
 
         // Then
         $this->assertResponseRedirects('/users');
         $crawler = $client->followRedirect();
         $this->assertSelectorTextContains('.alert-success', "L'utilisateur a bien été ajouté.");
-        $this->assertSelectorTextContains('table', $user->getUsername());
-        $this->assertSelectorTextContains('table', $user->getEmail());
+        $this->assertSelectorTextContains('table', $newUser->getUsername());
+        $this->assertSelectorTextContains('table', $newUser->getEmail());
     }
 
     public function testAdminCanEditAUser(): void
@@ -98,7 +95,7 @@ class UserControllerTest extends WebTestCase
     public function testUserCanAccessTheirProfile(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
+        [$client] = $this->getAuthenticatedClient('User1', followRedirects: false);
 
         // When
         $client->request('GET', '/users/me');
@@ -110,7 +107,7 @@ class UserControllerTest extends WebTestCase
     public function testUserCannotChangePasswordWithoutCurrentPassword(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: true);
+        [$client] = $this->getAuthenticatedClient('User1', followRedirects: true);
         $newPassword = bin2hex(random_bytes(16));
 
         // When
@@ -127,7 +124,7 @@ class UserControllerTest extends WebTestCase
     public function testUserCannotChangePasswordWithIncorrectCurrentPassword(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: true);
+        [$client] = $this->getAuthenticatedClient('User1', followRedirects: true);
         $newPassword = bin2hex(random_bytes(16));
         $currentPassword = 'incorrect';
 
@@ -171,11 +168,11 @@ class UserControllerTest extends WebTestCase
     public function testUserCannotDeleteAnotherUser(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
-        $user = $this->createRandomUser(persist: true);
+        [$client] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $otherUser = $this->createRandomUser(persist: true);
 
         // When
-        $client->request('DELETE', "/users/{$user->getId()}");
+        $client->request('DELETE', "/users/{$otherUser->getId()}");
 
         // Then
         $this->assertResponseStatusCodeSame(403);
