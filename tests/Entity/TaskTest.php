@@ -91,13 +91,13 @@ class TaskTest extends TestCase
         $this->assertFalse($task->isDone());
     }
 
-    public function testToggle(): void
+    public function testSetIsDone(): void
     {
         // Given
         $task = new Task();
 
         // When
-        $task->toggle(true);
+        $task->setIsDone(true);
 
         // Then
         $this->assertTrue($task->isDone());
