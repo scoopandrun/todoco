@@ -194,7 +194,7 @@ class UserControllerTest extends WebTestCase
         $client->submit($deleteForm);
 
         // Then
-        $this->assertResponseRedirects('/');
+        $this->assertResponseRedirects('/login');
         $client->followRedirect();
         $this->assertSelectorTextContains('.alert-success', "Votre compte a bien été supprimé.");
     }

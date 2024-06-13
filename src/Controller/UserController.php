@@ -108,9 +108,10 @@ class UserController extends AbstractController
             $request->getSession()->invalidate();
             $tokenStorage->setToken(null);
             $this->addFlash('success', "Votre compte a bien été supprimé.");
-            return $this->redirectToRoute('homepage');
+            return $this->redirectToRoute('login');
         }
 
+        // If the user is an admin, redirect them to the list of users
         $this->addFlash('success', "L'utilisateur a bien été supprimé.");
 
         return $this->redirectToRoute('user.list');
