@@ -11,7 +11,7 @@ class DefaultControllerTest extends WebTestCase
     public function testUnauthenticatedIndexReturnsUnauthorizedResponse(): void
     {
         // Given
-        $client = $this->getUnauthenticatedClient();
+        $client = $this->getUnauthenticatedClient(followRedirects: false);
         $method = 'GET';
         $url = '/';
 
@@ -25,7 +25,7 @@ class DefaultControllerTest extends WebTestCase
     public function testAuthenticatedIndexReturns200(): void
     {
         // Given
-        $client = $this->getUser1Client();
+        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
         $method = 'GET';
         $url = '/';
 

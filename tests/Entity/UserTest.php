@@ -38,6 +38,50 @@ class UserTest extends TestCase
         $this->assertEquals($username, $user->getUsername());
     }
 
+    public function testGetCurrentPassword(): void
+    {
+        // Given
+        $user = new User();
+
+        // Then
+        $this->assertNull($user->getCurrentPassword());
+    }
+
+    public function testSetCurrentPassword(): void
+    {
+        // Given
+        $user = new User();
+        $password = 'test_password';
+
+        // When
+        $user->setPassword($password);
+
+        // Then
+        $this->assertEquals($password, $user->getPassword());
+    }
+
+    public function testGetPlainPassword(): void
+    {
+        // Given
+        $user = new User();
+
+        // Then
+        $this->assertNull($user->getNewPassword());
+    }
+
+    public function testSetPlainPassword(): void
+    {
+        // Given
+        $user = new User();
+        $password = 'test_password';
+
+        // When
+        $user->setPassword($password);
+
+        // Then
+        $this->assertEquals($password, $user->getPassword());
+    }
+
     public function testGetPassword(): void
     {
         // Given
@@ -116,6 +160,7 @@ class UserTest extends TestCase
         $user->eraseCredentials();
 
         // Then
-        $this->assertNull($reflection->getProperty('plainPassword')->getValue($user));
+        $this->assertNull($reflection->getProperty('newPassword')->getValue($user));
+        $this->assertNull($reflection->getProperty('currentPassword')->getValue($user));
     }
 }
