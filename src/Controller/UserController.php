@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/users', name: 'user')]
@@ -88,6 +89,32 @@ class UserController extends AbstractController
             'form' => $form,
             'user' => $user,
         ]);
+    }
+
+    #[Route(path: '/{id}', name: '.delete', methods: ['DELETE'], requirements: ['id' => '\d+'])]
+    public function delete(
+        User $user,
+        EntityManagerInterface $em,
+        Request $request,
+        TokenStorageInterface $tokenStorage,
+    ): Response {
+        $this->denyAccessUnlessGranted(UserVoter::DELETE, $user);
+
+        $em->remove($user);
+        $em->flush();
+
+        // If the user is deleting their own account, log them out
+        if ($user === $this->getUser()) {
+            $request->getSession()->invalidate();
+            $tokenStorage->setToken(null);
+            $this->addFlash('success', "Votre compte a bien été supprimé.");
+            return $this->redirectToRoute('login');
+        }
+
+        // If the user is an admin, redirect them to the list of users
+        $this->addFlash('success', "L'utilisateur a bien été supprimé.");
+
+        return $this->redirectToRoute('user.list');
     }
 
     #[Route(path: '/me', name: '.me', methods: ['GET', 'PUT'])]

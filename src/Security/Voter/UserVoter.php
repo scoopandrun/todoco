@@ -14,6 +14,7 @@ final class UserVoter extends Voter
     public const string LIST = 'USER_LIST';
     public const string CREATE = 'USER_CREATE';
     public const string EDIT = 'USER_EDIT';
+    public const string DELETE = 'USER_DELETE';
 
     #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
@@ -23,7 +24,7 @@ final class UserVoter extends Voter
         }
 
         if ($subject instanceof User) {
-            return in_array($attribute, [self::EDIT]);
+            return in_array($attribute, [self::EDIT, self::DELETE]);
         }
 
         return false;
@@ -50,6 +51,9 @@ final class UserVoter extends Voter
                 return $user->isAdmin();
 
             case self::EDIT:
+                return $user->isAdmin() || $user === $subject;
+
+            case self::DELETE:
                 return $user->isAdmin() || $user === $subject;
         }
 

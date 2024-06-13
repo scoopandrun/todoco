@@ -2,7 +2,6 @@
 
 namespace App\Tests\Controller;
 
-use PHPUnit\Framework\Attributes\Depends;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class UserControllerTest extends WebTestCase
@@ -167,5 +166,53 @@ class UserControllerTest extends WebTestCase
         // Then
         $this->assertSelectorTextContains('.alert-success', "Votre compte a bien été modifié.");
         $this->assertSelectorTextContains('h1', $editedUsername);
+    }
+
+    public function testUserCannotDeleteAnotherUser(): void
+    {
+        // Given
+        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $user = $this->createRandomUser(persist: true);
+
+        // When
+        $client->request('DELETE', "/users/{$user->getId()}");
+
+        // Then
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testUserCanDeleteTheirOwnAccount(): void
+    {
+        // Given
+        $client = $this->getUnauthenticatedClient(followRedirects: false);
+        $user = $this->createRandomUser(persist: true);
+        $client->loginUser($user);
+
+        // When
+        $crawler = $client->request('GET', '/users/me');
+        $deleteForm = $crawler->filter('#delete-account')->form();
+        $client->submit($deleteForm);
+
+        // Then
+        $this->assertResponseRedirects('/login');
+        $client->followRedirect();
+        $this->assertSelectorTextContains('.alert-success', "Votre compte a bien été supprimé.");
+    }
+
+    public function testAdminCanDeleteAUserAccount(): void
+    {
+        // Given
+        $client = $this->getAdminClient(followRedirects: false);
+        $user = $this->createRandomUser(persist: true);
+
+        // When
+        $client->request('DELETE', "/users/{$user->getId()}");
+
+        // Then
+        $this->assertResponseRedirects('/users');
+        $client->followRedirect();
+        $this->assertSelectorTextContains('.alert-success', "L'utilisateur a bien été supprimé.");
+        $this->assertSelectorTextNotContains('table', $user->getUsername());
+        $this->assertSelectorTextNotContains('table', $user->getEmail());
     }
 }
