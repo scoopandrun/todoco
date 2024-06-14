@@ -173,4 +173,52 @@ class TaskControllerTest extends WebTestCase
         // Then
         $this->assertResponseRedirects('/tasks');
     }
+
+    public function testTaskPageWithNoFilterShowsAllTasks(): void
+    {
+        // Given
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $doneTask = $this->createRandomTask($user, true, persist: true);
+        $undoneTask = $this->createRandomTask($user, false, persist: true);
+
+        // When
+        $client->request('GET', '/tasks');
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('body', $doneTask->getTitle());
+        $this->assertSelectorTextContains('body', $undoneTask->getTitle());
+    }
+
+    public function testTaskPageWithFilterDoneOnlyShowsDoneTasks(): void
+    {
+        // Given
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $doneTask = $this->createRandomTask($user, true, persist: true);
+        $undoneTask = $this->createRandomTask($user, false, persist: true);
+
+        // When
+        $client->request('GET', '/tasks?done=1');
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('body', $doneTask->getTitle());
+        $this->assertSelectorTextNotContains('body', $undoneTask->getTitle());
+    }
+
+    public function testTaskPageWithFilterUndoneOnlyShowsUndoneTasks(): void
+    {
+        // Given
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $doneTask = $this->createRandomTask($user, true, persist: true);
+        $undoneTask = $this->createRandomTask($user, false, persist: true);
+
+        // When
+        $client->request('GET', '/tasks?done=0');
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextNotContains('body', $doneTask->getTitle());
+        $this->assertSelectorTextContains('body', $undoneTask->getTitle());
+    }
 }

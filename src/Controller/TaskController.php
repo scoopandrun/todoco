@@ -5,11 +5,12 @@ namespace App\Controller;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Form\TaskType;
-use App\Repository\TaskRepository;
 use App\Security\Voter\TaskVoter;
+use App\Service\TaskService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -17,34 +18,57 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/tasks', name: 'task')]
 class TaskController extends AbstractController
 {
+    /**
+     * The current request.
+     */
+    private Request $request;
+
+    public function __construct(
+        RequestStack $requestStack,
+    ) {
+        $this->request = $requestStack->getCurrentRequest();
+    }
+
+    /**
+     * List tasks.
+     * 
+     * The URL can contain a query parameter 'done' to filter tasks by their status.
+     */
     #[Route(path: '', name: '.list', methods: ['GET'])]
     #[IsGranted(TaskVoter::LIST)]
-    public function list(TaskRepository $taskRepository): Response
+    public function list(TaskService $taskService): Response
     {
-        $tasks = $taskRepository->findAll();
+        $isDone = $this->request->query->get('done');
+        $isDone = is_null($isDone) ? null : (bool) $isDone;
+
+        // Save query parameter to session
+        $this->request->getSession()->set('done', $isDone);
+
+        $tasks = $taskService->getTasks($isDone);
+
         return $this->render('task/list.html.twig', ['tasks' => $tasks]);
     }
 
     #[Route(path: '/create', name: '.create', methods: ['GET', 'POST'])]
     #[IsGranted(TaskVoter::CREATE)]
-    public function create(Request $request, EntityManagerInterface $entityManager): Response
+    public function create(EntityManagerInterface $entityManager): Response
     {
         $task = new Task();
 
         $form = $this->createForm(TaskType::class, $task, ['method' => 'POST']);
-        $form->handleRequest($request);
+        $form->handleRequest($this->request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var User $author */
             $author = $this->getUser();
-            $task->setAuthor($author);
+            $author->addTask($task);
 
             $entityManager->persist($task);
             $entityManager->flush();
 
             $this->addFlash('success', 'La tâche a bien été ajoutée.');
 
-            return $this->redirectToRoute('task.list');
+            return $this->redirectToList();
         }
 
         return $this->render('task/edit.html.twig', [
@@ -53,19 +77,19 @@ class TaskController extends AbstractController
     }
 
     #[Route(path: '/{id}/edit', name: '.edit', methods: ['GET', 'PUT'])]
-    public function edit(Task $task, Request $request, EntityManagerInterface $entityManager): Response
+    public function edit(Task $task, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted(TaskVoter::EDIT, $task);
 
         $form = $this->createForm(TaskType::class, $task, ['method' => 'PUT']);
-        $form->handleRequest($request);
+        $form->handleRequest($this->request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
             $this->addFlash('success', 'La tâche a bien été modifiée.');
 
-            return $this->redirectToRoute('task.list');
+            return $this->redirectToList();
         }
 
         return $this->render('task/edit.html.twig', [
@@ -75,8 +99,10 @@ class TaskController extends AbstractController
     }
 
     #[Route(path: '/{id}', name: '.toggle', methods: ['PATCH'])]
-    public function toggle(Task $task, EntityManagerInterface $entityManager): Response
-    {
+    public function toggle(
+        Task $task,
+        EntityManagerInterface $entityManager,
+    ): Response {
         $this->denyAccessUnlessGranted(TaskVoter::TOGGLE, $task);
 
         $task->setIsDone(!$task->isDone());
@@ -85,12 +111,14 @@ class TaskController extends AbstractController
         $status = $task->isDone() ? 'faite' : 'non terminée';
         $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme %s.', $task->getTitle(), $status));
 
-        return $this->redirectToRoute('task.list');
+        return $this->redirectToList();
     }
 
     #[Route(path: '/{id}', name: '.delete', methods: ['DELETE'])]
-    public function delete(Task $task, EntityManagerInterface $entityManager): Response
-    {
+    public function delete(
+        Task $task,
+        EntityManagerInterface $entityManager,
+    ): Response {
         $this->denyAccessUnlessGranted(TaskVoter::DELETE, $task, "Vous ne pouvez pas supprimer une tâche que vous n'avez pas créée.");
 
         $entityManager->remove($task);
@@ -98,6 +126,17 @@ class TaskController extends AbstractController
 
         $this->addFlash('success', 'La tâche a bien été supprimée.');
 
-        return $this->redirectToRoute('task.list');
+        return $this->redirectToList();
+    }
+
+    /**
+     * Redirect to the task list page with the query parameter 'done' if it exists.
+     */
+    private function redirectToList(): Response
+    {
+        $queryParameterDone = $this->request->getSession()->get('done');
+        $redirectUrl = $this->generateUrl('task.list') . (is_null($queryParameterDone) ? '' : '?done=' . $queryParameterDone);
+
+        return $this->redirect($redirectUrl);
     }
 }

@@ -64,11 +64,12 @@ class AppFixtures extends Fixture
             ->setContent('This task is created by anonymous user.');
         yield $anonymousTask;
 
-        // Generate 20 tasks with random author
+        // Generate 20 tasks with random author and 'isDone' status
         for ($i = 0; $i < 20; $i++) {
             $task = (new Task())
                 ->setTitle('Task ' . $i)
-                ->setContent('This is task number ' . $i);
+                ->setContent('This is task number ' . $i)
+                ->setIsDone((bool) rand(0, 1));
 
             if ($userId = rand(0, 2)) {
                 $task->setAuthor($this->getReference('User' . $userId));
