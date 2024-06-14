@@ -45,7 +45,8 @@ class AppFixtures extends Fixture
         $admin->setPassword($this->passwordHasher->hashPassword($admin, 'admin'));
         yield $admin;
 
-        foreach (range(1, 2) as $i) {
+        $numberOfUsers = 2; // min = 1
+        foreach (range(1, $numberOfUsers) as $i) {
             $user = (new User())
                 ->setUsername('User' . $i)
                 ->setEmail("user{$i}@example.com");

@@ -44,15 +44,18 @@ php bin/console doctrine:fixtures:load
 
 ## Default users
 
-By default, the fixtures create 2 permanent users :
+By default, the fixtures create 3 permanent users :
 
 - Admin
+  - username: Admin
   - email: admin<span>@</span>example.com
   - password: "admin"
 - User 1
+  - username: User1
   - email: user1<span>@</span>example.com
   - password: "pass"
 - User 2
+  - username: User2
   - email: user2<span>@</span>example.com
   - password: "pass"
 
