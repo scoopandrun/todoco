@@ -1,6 +1,9 @@
 twig:
     file_name_pattern: "*.twig"
     form_themes: ["bootstrap_5_layout.html.twig"]
+    globals:
+        UserVoter: '@App\Security\Voter\UserVoter'
+        TaskVoter: '@App\Security\Voter\TaskVoter'
 
 when@test:
     twig:
