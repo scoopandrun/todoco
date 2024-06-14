@@ -6,7 +6,7 @@
     {% if user %}
         <h1>Modifier <strong>{{ user.username }}</strong></h1>
     {% else %}
-        <h1>Créer un compte</h1>        
+        <h1>Créer un compte</h1>
     {% endif %}
 {% endblock %}
 {% block header_img %}{% endblock %}
@@ -48,8 +48,8 @@
     </div>
 
     <button type="submit" form="{{ form.vars.id }}" class="btn btn-success float-end">{{ user ? 'Modifier' : 'Créer un compte' }}</button>
-    
-    {% if is_granted('USER_DELETE', user) %}
+
+    {% if is_granted(constant('DELETE', UserVoter), user) %}
         <form action="{{ path('user.delete', { id: user.id }) }}" method="post">
             <input type="hidden" name="_method" value="DELETE">
             <button class="btn btn-danger float-start" id="delete-account">Supprimer le compte</button>

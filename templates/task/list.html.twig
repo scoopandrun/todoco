@@ -3,66 +3,20 @@
 {% block header_img %}<img class="w-100" src="{{ asset('img/todolist_content.jpg') }}" alt="todo list">{% endblock %}
 
 {% block body %}
+    <div class="d-flex gap-1 mb-3">
+        <a href="{{ path('task.list') }}" class="btn btn-success">Consulter la liste des tâches</a>
+        <a href="{{ path('task.list') }}?done=0" class="btn btn-info">Consulter la liste des tâches à faire</a>
+        <a href="{{ path('task.list') }}?done=1" class="btn btn-secondary">Consulter la liste des tâches terminées</a>
+    </div>
+
     <div class="row">
         {% for task in tasks %}
-        <div class="col-sm-4 col-lg-4 col-md-4">
-            <div class="card mb-3" id="task-{{ task.id }}">
-                <div class="card-header">
-                    <h4 class="float-end" id="task-{{ task.id }}-icon">
-                        {% if task.isDone %}<i class="bi-check"></i>{% else %}<i class="bi-x"></i>{% endif %}
-                    </h4>
-
-                    <h5 class="card-title" id="task-{{ task.id }}-title">
-                        {% if is_granted('TASK_EDIT', task) %}
-                            <a href="{{ path('task.edit', {'id' : task.id }) }}" class="link-primary text-decoration-none">{{ task.title }}</a>
-                        {% else %}
-                            {{ task.title }}
-                        {% endif %}
-                    </h5>
-                    
-                    <h6 class="card-subtitle fw-normal text-body-secondary">
-                        Auteur : {{ task.author.username ?? 'Anonyme' }}
-                    </h6>
-                </div>
-
-                <div class="card-body">
-
-                    <p class="card-text">{{ task.content }}</p>
-                </div>
-
-                {% if is_granted('TASK_TOGGLE', task) or is_granted('TASK_DELETE', task) %}
-                    <div class="card-footer">
-                        <div class="d-flex justify-content-between">
-                            {% if is_granted('TASK_TOGGLE', task) %}                            
-                                <form action="{{ path('task.toggle', {'id' : task.id }) }}" method="post">
-                                    <input type="hidden" name="_method" value="PATCH">
-                                    <button class="btn btn-success btn-sm" id="task-{{ task.id }}-toggle">
-                                        {% if not task.isDone %}Marquer comme faite{% else %}Marquer non terminée{% endif %}
-                                    </button>
-                                </form>
-                            {% endif %}
-
-                            {% if is_granted('TASK_DELETE', task) %}                            
-                                <form action="{{ path('task.delete', {'id' : task.id }) }}" method="post">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button
-                                        class="btn btn-danger btn-sm"
-                                        id="task-{{ task.id }}-delete"
-                                        data-controller="delete-button"
-                                        data-confirmation="Confirmez-vous la suppression de cette tâche ?"
-                                    >Supprimer</button>
-                                </form>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+            {% include("task/_task-card.html.twig") %}
         {% else %}
             <div class="alert alert-warning" role="alert">
                 Il n'y a pas encore de tâche enregistrée.
 
-                {% if is_granted('TASK_CREATE') %}
+                {% if is_granted(constant('CREATE', TaskVoter)) %}
                     <a href="{{ path('task.create') }}" class="btn btn-warning float-end">Créer une tâche</a>
                 {% endif %}
             </div>

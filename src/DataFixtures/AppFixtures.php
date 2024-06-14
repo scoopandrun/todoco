@@ -45,7 +45,8 @@ class AppFixtures extends Fixture
         $admin->setPassword($this->passwordHasher->hashPassword($admin, 'admin'));
         yield $admin;
 
-        foreach (range(1, 2) as $i) {
+        $numberOfUsers = 2; // min = 1
+        foreach (range(1, $numberOfUsers) as $i) {
             $user = (new User())
                 ->setUsername('User' . $i)
                 ->setEmail("user{$i}@example.com");
@@ -64,11 +65,12 @@ class AppFixtures extends Fixture
             ->setContent('This task is created by anonymous user.');
         yield $anonymousTask;
 
-        // Generate 20 tasks with random author
+        // Generate 20 tasks with random author and 'isDone' status
         for ($i = 0; $i < 20; $i++) {
             $task = (new Task())
                 ->setTitle('Task ' . $i)
-                ->setContent('This is task number ' . $i);
+                ->setContent('This is task number ' . $i)
+                ->setIsDone((bool) rand(0, 1));
 
             if ($userId = rand(0, 2)) {
                 $task->setAuthor($this->getReference('User' . $userId));

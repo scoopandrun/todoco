@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block header_img %}<img class="w-100" src="{{ asset('img/todolist_content.jpg') }}" alt="todo list">{% endblock %}
+
+{% block body %}
+    <div class="d-flex gap-1 mb-3">
+        <a href="{{ path('task.list') }}" class="btn btn-success">Revenir à la liste des tâches (tout auteur)</a>
+    </div>
+
+    <div class="row">
+        {% for task in tasks %}
+            {% include("task/_task-card.html.twig") %}
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                Cet utilisateur n'a aucune tâche associée.
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -36,15 +36,15 @@
         <!-- Page Content -->
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-1 gap-1">
-                {% if is_granted('TASK_CREATE') %}
+                {% if is_granted(constant('CREATE', TaskVoter)) %}
                     <a href="{{ path('task.create') }}" class="btn btn-info">Créer une tâche</a>
                 {% endif %}
 
-                {% if is_granted('USER_LIST') %}
+                {% if is_granted(constant('LIST', UserVoter)) %}
                     <a href="{{ path('user.list') }}" class="btn btn-primary">Gérer les utilisateurs</a>
                 {% endif %}
 
-                <span class="ms-auto">                
+                <span class="ms-auto">
                     {% if app.user %}
                         <a href="{{ path('user.me') }}" class="pe-3">{{ app.user.username }}</a>
                         <a href="{{ path('logout') }}" class="btn btn-danger">Se déconnecter</a>

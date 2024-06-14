@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class DefaultControllerTest extends WebTestCase
 {
-    use UsersTrait;
+    use ClientTrait;
 
     public function testUnauthenticatedIndexReturnsUnauthorizedResponse(): void
     {
@@ -25,7 +25,7 @@ class DefaultControllerTest extends WebTestCase
     public function testAuthenticatedIndexReturns200(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
+        [$client] = $this->getAuthenticatedClient('User1', followRedirects: false);
         $method = 'GET';
         $url = '/';
 

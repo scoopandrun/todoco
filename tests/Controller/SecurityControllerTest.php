@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class SecurityControllerTest extends WebTestCase
 {
-    use UsersTrait;
+    use ClientTrait, UsersTrait;
 
     public function testLoginPageReturns200(): void
     {
@@ -23,7 +23,7 @@ class SecurityControllerTest extends WebTestCase
     public function testAuthenticatedAccessToLoginPageRedirectsToHomepage(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
+        [$client] = $this->getAuthenticatedClient('User1', followRedirects: false);
 
         // When
         $client->request('GET', '/login');
@@ -83,7 +83,7 @@ class SecurityControllerTest extends WebTestCase
     public function testSignupPageIsNotAccessibleByConnectedUser(): void
     {
         // Given
-        $client = $this->getAuthenticatedClient('User1', followRedirects: false);
+        [$client] = $this->getAuthenticatedClient('User1', followRedirects: false);
 
         // When
         $client->request('GET', '/signup');
