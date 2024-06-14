@@ -22,4 +22,9 @@ class TaskService
 
         return $tasks;
     }
+
+    public function getTasksByUser(User $user): Collection
+    {
+        return $user->getTasks();
+    }
 }

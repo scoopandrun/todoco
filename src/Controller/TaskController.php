@@ -49,6 +49,18 @@ class TaskController extends AbstractController
         return $this->render('task/list.html.twig', ['tasks' => $tasks]);
     }
 
+    /**
+     * List tasks by user.
+     */
+    #[Route(path: '/user/{id}', name: '.list-by-user', methods: ['GET'], requirements: ['id' => '\d+'])]
+    #[IsGranted(TaskVoter::LIST)]
+    public function listByUser(User $user, TaskService $taskService): Response
+    {
+        $tasks = $taskService->getTasksByUser($user);
+
+        return $this->render('task/user.html.twig', ['tasks' => $tasks]);
+    }
+
     #[Route(path: '/create', name: '.create', methods: ['GET', 'POST'])]
     #[IsGranted(TaskVoter::CREATE)]
     public function create(EntityManagerInterface $entityManager): Response
@@ -125,6 +137,12 @@ class TaskController extends AbstractController
         $entityManager->flush();
 
         $this->addFlash('success', 'La tâche a bien été supprimée.');
+
+        // Check if the request comes from the list page or the list by user page
+        $referer = $this->request->headers->get('referer') ?? '';
+        if (strpos($referer, '/tasks/user/') !== false) {
+            return $this->redirectToRoute('task.list-by-user', ['id' => $task->getAuthor()->getId()]);
+        }
 
         return $this->redirectToList();
     }
