@@ -1,0 +1,61 @@
+<div class="col-sm-4 col-lg-4 col-md-4" id="task-{{ task.id }}" data-done="{{ task.isDone ? '0' }}">
+    <div class="card mb-3">
+        <div class="card-header">
+            <h4 class="float-end" id="task-{{ task.id }}-icon">
+                {% if task.isDone %}<i class="bi-check"></i>{% else %}<i class="bi-x"></i>{% endif %}
+            </h4>
+
+            <h5 class="card-title" id="task-{{ task.id }}-title">
+                {% if is_granted(constant('EDIT', TaskVoter), task) %}
+                    <a href="{{ path('task.edit', {'id' : task.id }) }}" class="link-primary text-decoration-none">{{ task.title }}</a>
+                {% else %}
+                    {{ task.title }}
+                {% endif %}
+            </h5>
+
+            <h6 class="card-subtitle fw-normal text-body-secondary">
+                {% if task.author %}
+                    Auteur : <a
+                                href="{{ path('task.list-by-user', {'id' : task.author.id }) }}"
+                                class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                                title="Voir les tâches de {{ task.author.username }}"
+                            >{{ task.author.username }}</a>
+                {% else %}
+                    Auteur : Anonyme
+                {% endif %}
+            </h6>
+        </div>
+
+        <div class="card-body">
+
+            <p class="card-text">{{ task.content }}</p>
+        </div>
+
+        {% if is_granted(constant('TOGGLE', TaskVoter), task) or is_granted(constant('DELETE', TaskVoter), task) %}
+            <div class="card-footer">
+                <div class="d-flex justify-content-between">
+                    {% if is_granted(constant('TOGGLE', TaskVoter), task) %}
+                        <form action="{{ path('task.toggle', {'id' : task.id }) }}" method="post">
+                            <input type="hidden" name="_method" value="PATCH">
+                            <button class="btn btn-success btn-sm" id="task-{{ task.id }}-toggle">
+                                {% if not task.isDone %}Marquer comme faite{% else %}Marquer non terminée{% endif %}
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {% if is_granted(constant('DELETE', TaskVoter), task) %}
+                        <form action="{{ path('task.delete', {'id' : task.id }) }}" method="post">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button
+                                class="btn btn-danger btn-sm"
+                                id="task-{{ task.id }}-delete"
+                                data-controller="delete-button"
+                                data-confirmation="Confirmez-vous la suppression de cette tâche ?"
+                            >Supprimer</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>

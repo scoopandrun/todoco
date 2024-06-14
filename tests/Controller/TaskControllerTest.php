@@ -173,4 +173,84 @@ class TaskControllerTest extends WebTestCase
         // Then
         $this->assertResponseRedirects('/tasks');
     }
+
+    public function testTaskPageWithNoFilterShowsAllTasks(): void
+    {
+        // Given
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $doneTask = $this->createRandomTask($user, true, persist: true);
+        $undoneTask = $this->createRandomTask($user, false, persist: true);
+
+        // When
+        $client->request('GET', '/tasks');
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('body', $doneTask->getTitle());
+        $this->assertSelectorTextContains('body', $undoneTask->getTitle());
+    }
+
+    public function testTaskPageWithFilterDoneOnlyShowsDoneTasks(): void
+    {
+        // Given
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $doneTask = $this->createRandomTask($user, true, persist: true);
+        $undoneTask = $this->createRandomTask($user, false, persist: true);
+
+        // When
+        $client->request('GET', '/tasks?done=1');
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('body', $doneTask->getTitle());
+        $this->assertSelectorTextNotContains('body', $undoneTask->getTitle());
+    }
+
+    public function testTaskPageWithFilterUndoneOnlyShowsUndoneTasks(): void
+    {
+        // Given
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $doneTask = $this->createRandomTask($user, true, persist: true);
+        $undoneTask = $this->createRandomTask($user, false, persist: true);
+
+        // When
+        $client->request('GET', '/tasks?done=0');
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextNotContains('body', $doneTask->getTitle());
+        $this->assertSelectorTextContains('body', $undoneTask->getTitle());
+    }
+
+    public function testTaskListByUserPageOnlyShowsTasksByUser(): void
+    {
+        // Given
+        [$client, $user1] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $user2 = $this->getUser('User2');
+        $user1Task = $this->createRandomTask($user1, persist: true);
+        $user2Task = $this->createRandomTask($user2, persist: true);
+
+        // When
+        $client->request('GET', "/tasks/user/{$user1->getId()}");
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('body', $user1Task->getTitle());
+        $this->assertSelectorTextNotContains('body', $user2Task->getTitle());
+    }
+
+    public function testDeletingATaskFromListByUserPageRedirectsToSamePage(): void
+    {
+        // Given
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $task = $this->createRandomTask($user, persist: true);
+
+        // When
+        $crawler = $client->request('GET', "/tasks/user/{$user->getId()}");
+        $deleteForm = $crawler->filter("#task-{$task->getId()}-delete")->first()->form();
+        $client->submit($deleteForm);
+
+        // Then
+        $this->assertResponseRedirects("/tasks/user/{$user->getId()}");
+    }
 }
