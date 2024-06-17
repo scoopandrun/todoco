@@ -53,10 +53,10 @@ class UserControllerTest extends WebTestCase
         // When
         $crawler = $client->request('GET', '/users/create');
         $form = $crawler->selectButton('Créer un compte')->form();
-        $form['user[username]'] = $newUser->getUsername();
-        $form['user[newPassword][first]'] = $newUser->getPassword();
-        $form['user[newPassword][second]'] = $newUser->getPassword();
-        $form['user[email]'] = $newUser->getEmail();
+        $form['user[username]'] = (string) $newUser->getUsername();
+        $form['user[newPassword][first]'] = (string) $newUser->getPassword();
+        $form['user[newPassword][second]'] = (string) $newUser->getPassword();
+        $form['user[email]'] = (string) $newUser->getEmail();
         $client->submit($form);
 
         // Then
@@ -155,7 +155,7 @@ class UserControllerTest extends WebTestCase
         $form = $crawler->selectButton('Modifier')->form();
         $form['user[username]'] = $editedUsername;
         $form['user[email]'] = $editedEmail;
-        $form['user[currentPassword]'] = $user->getCurrentPassword();
+        $form['user[currentPassword]'] = (string) $user->getCurrentPassword();
         $form['user[newPassword][first]'] = $newPassword;
         $form['user[newPassword][second]'] = $newPassword;
         $client->submit($form);

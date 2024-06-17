@@ -29,7 +29,7 @@ class PasswordRequirements extends Compound
      * 
      * Current value = Medium (2).
      */
-    public const int MIN_STRENGTH = PasswordStrength::STRENGTH_MEDIUM;
+    public const MIN_STRENGTH = PasswordStrength::STRENGTH_MEDIUM;
 
     /**
      * @param array<string, mixed> $options 

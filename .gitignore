@@ -28,3 +28,7 @@
 ###> phpstan/phpstan ###
 phpstan.neon
 ###< phpstan/phpstan ###
+
+###> phpro/grumphp ###
+grumphp.yml
+###< phpro/grumphp ###

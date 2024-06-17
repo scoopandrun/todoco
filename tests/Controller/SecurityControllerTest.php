@@ -128,8 +128,8 @@ class SecurityControllerTest extends WebTestCase
         // When
         $crawler = $client->request('GET', '/signup');
         $form = $crawler->selectButton('Créer un compte')->form();
-        $form['user[username]'] = $username;
-        $form['user[email]'] = $email;
+        $form['user[username]'] = (string) $username;
+        $form['user[email]'] = (string) $email;
         $crawler = $client->submit($form);
 
         // Then
@@ -146,10 +146,10 @@ class SecurityControllerTest extends WebTestCase
         // When
         $crawler = $client->request('GET', '/signup');
         $form = $crawler->selectButton('Créer un compte')->form();
-        $form['user[username]'] = $user->getUsername();
-        $form['user[newPassword][first]'] = $user->getNewPassword();
-        $form['user[newPassword][second]'] = $user->getNewPassword();
-        $form['user[email]'] = $user->getEmail();
+        $form['user[username]'] = (string) $user->getUsername();
+        $form['user[newPassword][first]'] = (string) $user->getNewPassword();
+        $form['user[newPassword][second]'] = (string) $user->getNewPassword();
+        $form['user[email]'] = (string) $user->getEmail();
         $crawler = $client->submit($form);
 
         // Then

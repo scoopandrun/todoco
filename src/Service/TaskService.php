@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Task;
 use App\Entity\User;
 use App\Repository\TaskRepository;
 use Doctrine\Common\Collections\Collection;
@@ -12,6 +13,13 @@ class TaskService
     {
     }
 
+    /**
+     * Get tasks.
+     * 
+     * @param null|bool $isDone Filter for done tasks.
+     * 
+     * @return Task[]
+     */
     public function getTasks(?bool $isDone = null): array
     {
         if (!is_null($isDone)) {
@@ -23,6 +31,13 @@ class TaskService
         return $tasks;
     }
 
+    /**
+     * Get tasks by user.
+     * 
+     * @param User $user 
+     * 
+     * @return Collection<int, Task>
+     */
     public function getTasksByUser(User $user): Collection
     {
         return $user->getTasks();

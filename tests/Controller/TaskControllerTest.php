@@ -41,8 +41,8 @@ class TaskControllerTest extends WebTestCase
         // When
         $crawler = $client->request('GET', '/tasks/create');
         $form = $crawler->selectButton('Ajouter')->form();
-        $form['task[title]'] = $task->getTitle();
-        $form['task[content]'] = $task->getContent();
+        $form['task[title]'] = (string) $task->getTitle();
+        $form['task[content]'] = (string) $task->getContent();
         $client->submit($form);
 
         // Then
