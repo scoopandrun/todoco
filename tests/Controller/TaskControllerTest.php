@@ -3,6 +3,7 @@
 namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\UX\Turbo\TurboBundle;
 
 class TaskControllerTest extends WebTestCase
 {
@@ -41,8 +42,8 @@ class TaskControllerTest extends WebTestCase
         // When
         $crawler = $client->request('GET', '/tasks/create');
         $form = $crawler->selectButton('Ajouter')->form();
-        $form['task[title]'] = $task->getTitle();
-        $form['task[content]'] = $task->getContent();
+        $form['task[title]'] = (string) $task->getTitle();
+        $form['task[content]'] = (string) $task->getContent();
         $client->submit($form);
 
         // Then
@@ -252,5 +253,33 @@ class TaskControllerTest extends WebTestCase
 
         // Then
         $this->assertResponseRedirects("/tasks/user/{$user->getId()}");
+    }
+
+    public function testDeletingTaskWithStreamFormatRedirectsToStream(): void
+    {
+        // Given
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $task = $this->createRandomTask($user, persist: true);
+
+        // When
+        $client->request('DELETE', "/tasks/{$task->getId()}", [], [], ['HTTP_ACCEPT' => TurboBundle::STREAM_MEDIA_TYPE]);
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertResponseHasHeader('Content-Type', TurboBundle::STREAM_MEDIA_TYPE);
+    }
+
+    public function testTogglingTaskWithStreamFormatRedirectsToStream(): void
+    {
+        // Given
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $task = $this->createRandomTask($user, persist: true);
+
+        // When
+        $client->request('PATCH', "/tasks/{$task->getId()}", [], [], ['HTTP_ACCEPT' => TurboBundle::STREAM_MEDIA_TYPE]);
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertResponseHasHeader('Content-Type', TurboBundle::STREAM_MEDIA_TYPE);
     }
 }

@@ -7,8 +7,20 @@
         {{ form(form, { attr: { id: form.vars.id }}) }}
     </div>
 
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between gap-1">
         <a href="{{ path('task.list') }}" class="btn btn-primary">Retour à la liste des tâches</a>
+
+        {% if is_granted(constant('DELETE', TaskVoter), task) %}
+            <form action="{{ path('task.delete', {'id' : task.id }) }}" method="post" class="d-inline ms-auto" data-turbo="false">
+                <input type="hidden" name="_method" value="DELETE">
+                <button
+                    class="btn btn-danger"
+                    id="task-{{ task.id }}-delete"
+                    data-controller="delete-button"
+                    data-confirmation="Confirmez-vous la suppression de cette tâche ?"
+                >Supprimer</button>
+            </form>
+        {% endif %}
 
         <button type="submit" form="{{ form.vars.id }}" class="btn btn-success">{{ task ? 'Modifier' : 'Ajouter' }}</button>
     </div>

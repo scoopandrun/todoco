@@ -7,7 +7,7 @@
 
             <h5 class="card-title" id="task-{{ task.id }}-title">
                 {% if is_granted(constant('EDIT', TaskVoter), task) %}
-                    <a href="{{ path('task.edit', {'id' : task.id }) }}" class="link-primary text-decoration-none">{{ task.title }}</a>
+                    <a href="{{ path('task.edit', {'id' : task.id }) }}" class="link-primary text-decoration-none" target="_top">{{ task.title }}</a>
                 {% else %}
                     {{ task.title }}
                 {% endif %}

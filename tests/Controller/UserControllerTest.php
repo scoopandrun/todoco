@@ -3,6 +3,7 @@
 namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\UX\Turbo\TurboBundle;
 
 class UserControllerTest extends WebTestCase
 {
@@ -53,10 +54,10 @@ class UserControllerTest extends WebTestCase
         // When
         $crawler = $client->request('GET', '/users/create');
         $form = $crawler->selectButton('Créer un compte')->form();
-        $form['user[username]'] = $newUser->getUsername();
-        $form['user[newPassword][first]'] = $newUser->getPassword();
-        $form['user[newPassword][second]'] = $newUser->getPassword();
-        $form['user[email]'] = $newUser->getEmail();
+        $form['user[username]'] = (string) $newUser->getUsername();
+        $form['user[newPassword][first]'] = (string) $newUser->getPassword();
+        $form['user[newPassword][second]'] = (string) $newUser->getPassword();
+        $form['user[email]'] = (string) $newUser->getEmail();
         $client->submit($form);
 
         // Then
@@ -155,7 +156,7 @@ class UserControllerTest extends WebTestCase
         $form = $crawler->selectButton('Modifier')->form();
         $form['user[username]'] = $editedUsername;
         $form['user[email]'] = $editedEmail;
-        $form['user[currentPassword]'] = $user->getCurrentPassword();
+        $form['user[currentPassword]'] = (string) $user->getCurrentPassword();
         $form['user[newPassword][first]'] = $newPassword;
         $form['user[newPassword][second]'] = $newPassword;
         $client->submit($form);
@@ -211,5 +212,19 @@ class UserControllerTest extends WebTestCase
         $this->assertSelectorTextContains('.alert-success', "L'utilisateur a bien été supprimé.");
         $this->assertSelectorTextNotContains('table', $user->getUsername());
         $this->assertSelectorTextNotContains('table', $user->getEmail());
+    }
+
+    public function testDeletingUserWithStreamFormatRedirectsToStream(): void
+    {
+        // Given
+        $client = $this->getAdminClient(followRedirects: false);
+        $user = $this->createRandomUser(persist: true);
+
+        // When
+        $client->request('DELETE', "/users/{$user->getId()}", [], [], ['HTTP_ACCEPT' => TurboBundle::STREAM_MEDIA_TYPE]);
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertResponseHasHeader('Content-Type', TurboBundle::STREAM_MEDIA_TYPE);
     }
 }

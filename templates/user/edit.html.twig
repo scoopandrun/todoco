@@ -39,7 +39,7 @@
 
             {# Add the roles field only if the current user is an admin #}
             {% if app.user.admin %}
-                {{ form_row(form.roles, { label: false }) }}
+                {{ form_row(form.roles, { label: 'Rôle' }) }}
             {% else %}
                 {% do form.roles.setRendered %}
             {% endif %}
@@ -50,7 +50,7 @@
     <button type="submit" form="{{ form.vars.id }}" class="btn btn-success float-end">{{ user ? 'Modifier' : 'Créer un compte' }}</button>
 
     {% if is_granted(constant('DELETE', UserVoter), user) %}
-        <form action="{{ path('user.delete', { id: user.id }) }}" method="post">
+        <form action="{{ path('user.delete', { id: user.id }) }}" method="post" data-turbo="false">
             <input type="hidden" name="_method" value="DELETE">
             <button class="btn btn-danger float-start" id="delete-account">Supprimer le compte</button>
         </form>

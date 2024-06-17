@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\UX\Turbo\TurboBundle;
 
 #[Route('/tasks', name: 'task')]
 class TaskController extends AbstractController
@@ -121,7 +122,24 @@ class TaskController extends AbstractController
         $entityManager->flush();
 
         $status = $task->isDone() ? 'faite' : 'non terminée';
-        $this->addFlash('success', sprintf('La tâche %s a bien été marquée comme %s.', $task->getTitle(), $status));
+        $flashType = 'success';
+        $flashMessage = sprintf('La tâche %s a bien été marquée comme %s.', $task->getTitle(), $status);
+
+        // If the request is an AJAX request, return a stream response
+        if ($this->request->getPreferredFormat() === TurboBundle::STREAM_FORMAT) {
+            $this->request->setRequestFormat(TurboBundle::STREAM_FORMAT);
+
+            return $this->render(
+                'task/_toggle.stream.html.twig',
+                [
+                    'task' => $task,
+                    'message' => $flashMessage,
+                    'type' => $flashType,
+                ]
+            );
+        }
+
+        $this->addFlash($flashType, sprintf('La tâche %s a bien été marquée comme %s.', $task->getTitle(), $status));
 
         return $this->redirectToList();
     }
@@ -133,15 +151,35 @@ class TaskController extends AbstractController
     ): Response {
         $this->denyAccessUnlessGranted(TaskVoter::DELETE, $task, "Vous ne pouvez pas supprimer une tâche que vous n'avez pas créée.");
 
+        $taskId = $task->getId();
+        $authorId = $task->getAuthor()?->getId();
+
         $entityManager->remove($task);
         $entityManager->flush();
 
-        $this->addFlash('success', 'La tâche a bien été supprimée.');
+        $flashType = 'success';
+        $flashMessage = 'La tâche a bien été supprimée.';
+
+        // If the request is an AJAX request, return a stream response
+        if ($this->request->getPreferredFormat() === TurboBundle::STREAM_FORMAT) {
+            $this->request->setRequestFormat(TurboBundle::STREAM_FORMAT);
+
+            return $this->render(
+                'task/_delete.stream.html.twig',
+                [
+                    'id' => $taskId,
+                    'message' => $flashMessage,
+                    'type' => $flashType,
+                ]
+            );
+        }
+
+        $this->addFlash($flashType, $flashMessage);
 
         // Check if the request comes from the list page or the list by user page
         $referer = $this->request->headers->get('referer') ?? '';
         if (strpos($referer, '/tasks/user/') !== false) {
-            return $this->redirectToRoute('task.list-by-user', ['id' => $task->getAuthor()->getId()]);
+            return $this->redirectToRoute('task.list-by-user', ['id' => $authorId]);
         }
 
         return $this->redirectToList();
