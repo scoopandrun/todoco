@@ -1,0 +1,7 @@
+<turbo-stream action="remove" target="user-{{ id }}"></turbo-stream>
+
+<turbo-stream action="append" target="flashes">
+  <template>
+    {{ include('_flash.html.twig') }}
+  </template>
+</turbo-stream>

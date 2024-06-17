@@ -4,22 +4,24 @@
 
 {% block body %}
     <div class="d-flex gap-1 mb-3">
-        <a href="{{ path('task.list') }}" class="btn btn-success">Consulter la liste des tâches</a>
-        <a href="{{ path('task.list') }}?done=0" class="btn btn-info">Consulter la liste des tâches à faire</a>
-        <a href="{{ path('task.list') }}?done=1" class="btn btn-secondary">Consulter la liste des tâches terminées</a>
+        <a href="{{ path('task.list') }}" class="btn btn-success" data-turbo-frame="tasks">Consulter la liste des tâches</a>
+        <a href="{{ path('task.list') }}?done=0" class="btn btn-info" data-turbo-frame="tasks">Consulter la liste des tâches à faire</a>
+        <a href="{{ path('task.list') }}?done=1" class="btn btn-secondary" data-turbo-frame="tasks">Consulter la liste des tâches terminées</a>
     </div>
 
-    <div class="row">
-        {% for task in tasks %}
-            {% include("task/_task-card.html.twig") %}
-        {% else %}
-            <div class="alert alert-warning" role="alert">
-                Il n'y a pas encore de tâche enregistrée.
+    <turbo-frame id="tasks">
+        <div class="row">
+            {% for task in tasks %}
+                {% include("task/_task-card.html.twig") %}
+            {% else %}
+                <div class="alert alert-warning" role="alert">
+                    Il n'y a pas encore de tâche enregistrée.
 
-                {% if is_granted(constant('CREATE', TaskVoter)) %}
-                    <a href="{{ path('task.create') }}" class="btn btn-warning float-end">Créer une tâche</a>
-                {% endif %}
-            </div>
-        {% endfor %}
-    </div>
+                    {% if is_granted(constant('CREATE', TaskVoter)) %}
+                        <a href="{{ path('task.create') }}" class="btn btn-warning float-end">Créer une tâche</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </turbo-frame>
 {% endblock %}

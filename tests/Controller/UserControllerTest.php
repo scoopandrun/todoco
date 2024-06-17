@@ -3,6 +3,7 @@
 namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\UX\Turbo\TurboBundle;
 
 class UserControllerTest extends WebTestCase
 {
@@ -211,5 +212,19 @@ class UserControllerTest extends WebTestCase
         $this->assertSelectorTextContains('.alert-success', "L'utilisateur a bien été supprimé.");
         $this->assertSelectorTextNotContains('table', $user->getUsername());
         $this->assertSelectorTextNotContains('table', $user->getEmail());
+    }
+
+    public function testDeletingUserWithStreamFormatRedirectsToStream(): void
+    {
+        // Given
+        $client = $this->getAdminClient(followRedirects: false);
+        $user = $this->createRandomUser(persist: true);
+
+        // When
+        $client->request('DELETE', "/users/{$user->getId()}", [], [], ['HTTP_ACCEPT' => TurboBundle::STREAM_MEDIA_TYPE]);
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertResponseHasHeader('Content-Type', TurboBundle::STREAM_MEDIA_TYPE);
     }
 }

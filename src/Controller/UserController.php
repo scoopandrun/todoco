@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\UX\Turbo\TurboBundle;
 
 #[Route('/users', name: 'user')]
 class UserController extends AbstractController
@@ -100,19 +101,38 @@ class UserController extends AbstractController
     ): Response {
         $this->denyAccessUnlessGranted(UserVoter::DELETE, $user);
 
+        $userId = $user->getId();
+
         $em->remove($user);
         $em->flush();
+
+        $flashType = 'success';
+        $flashMessage = "L'utilisateur a bien été supprimé.";
 
         // If the user is deleting their own account, log them out
         if ($user === $this->getUser()) {
             $request->getSession()->invalidate();
             $tokenStorage->setToken(null);
-            $this->addFlash('success', "Votre compte a bien été supprimé.");
+            $this->addFlash($flashType, "Votre compte a bien été supprimé.");
             return $this->redirectToRoute('login');
         }
 
+        // If the request is an AJAX request, return a stream response
+        if ($request->getPreferredFormat() === TurboBundle::STREAM_FORMAT) {
+            $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
+
+            return $this->render(
+                'user/_delete.stream.html.twig',
+                [
+                    'id' => $userId,
+                    'message' => $flashMessage,
+                    'type' => $flashType,
+                ]
+            );
+        }
+
         // If the user is an admin, redirect them to the list of users
-        $this->addFlash('success', "L'utilisateur a bien été supprimé.");
+        $this->addFlash($flashType, $flashMessage);
 
         return $this->redirectToRoute('user.list');
     }
