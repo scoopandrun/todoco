@@ -4,8 +4,12 @@ namespace App\Tests\Entity;
 
 use App\Entity\Task;
 use App\Entity\User;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(Task::class)]
+#[UsesClass(User::class)]
 class TaskTest extends TestCase
 {
     public function testGetId(): void

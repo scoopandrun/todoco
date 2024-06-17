@@ -2,8 +2,11 @@
 
 namespace App\Tests\Controller;
 
+use App\Controller\SecurityController;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+#[CoversClass(SecurityController::class)]
 class SecurityControllerTest extends WebTestCase
 {
     use ClientTrait, UsersTrait;
