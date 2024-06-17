@@ -2,3 +2,10 @@ label.required::after {
   content: " *";
   color: red;
 }
+
+#flashes {
+  position: sticky;
+  top: 1rem;
+  will-change: transform;
+  z-index: 10;
+}

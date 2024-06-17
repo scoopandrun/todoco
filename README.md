@@ -11,7 +11,8 @@ This repository is primarily a way of sharing code with the tutor.
 
 This project uses [Composer](https://getcomposer.org) with PHP `>=8.3`.
 
-Configure your database and email server in `/app/config/parameters.yml`.
+Configure your database in a `.env.local` file at the root of the project.
+Copy a `DATABASE_URL` line from the `.env` file and modify it to fit your configuration.
 
 Clone and install the project.
 
@@ -59,4 +60,4 @@ By default, the fixtures create 3 permanent users :
   - email: user2<span>@</span>example.com
   - password: "pass"
 
-You can update the initial users information in the User data fixture (`src/DataFixtures/AppFixtures.php`).
+You can update the initial users information in the data fixtures (`src/DataFixtures/AppFixtures.php`).

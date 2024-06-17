@@ -1,5 +1,0 @@
-grumphp:
-    tasks:
-        phpstan: ~
-        make:
-            task: "test"
