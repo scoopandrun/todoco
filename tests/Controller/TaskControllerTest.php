@@ -2,9 +2,20 @@
 
 namespace App\Tests\Controller;
 
+use App\Controller\TaskController;
+use App\Form\TaskType;
+use App\Repository\TaskRepository;
+use App\Security\Voter\TaskVoter;
+use App\Service\TaskService;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\UX\Turbo\TurboBundle;
 
+#[CoversClass(TaskController::class)]
+#[CoversClass(TaskService::class)]
+#[CoversClass(TaskRepository::class)]
+#[CoversClass(TaskType::class)]
+#[CoversClass(TaskVoter::class)]
 class TaskControllerTest extends WebTestCase
 {
     use ClientTrait, TasksTrait, UsersTrait;
@@ -31,6 +42,19 @@ class TaskControllerTest extends WebTestCase
 
         // Then
         $this->assertResponseStatusCodeSame(401);
+    }
+
+    public function testUnauthenticatedAccessDoesntShowCreateTaskButton(): void
+    {
+        // Given
+        $client = $this->getUnauthenticatedClient(followRedirects: false);
+
+        // When
+        $client->request('GET', '/login');
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorNotExists('a[href="/tasks/create"]');
     }
 
     public function testTaskCanBeCreated(): void

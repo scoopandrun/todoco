@@ -2,9 +2,22 @@
 
 namespace App\Tests\Controller;
 
+use App\Controller\UserController;
+use App\Form\UserType;
+use App\Repository\UserRepository;
+use App\Security\Voter\UserVoter;
+use App\Service\UserService;
+use App\Validator\Constraints\PasswordRequirements;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\UX\Turbo\TurboBundle;
 
+#[CoversClass(UserController::class)]
+#[CoversClass(UserService::class)]
+#[CoversClass(UserRepository::class)]
+#[CoversClass(UserType::class)]
+#[CoversClass(PasswordRequirements::class)]
+#[CoversClass(UserVoter::class)]
 class UserControllerTest extends WebTestCase
 {
     use ClientTrait;
