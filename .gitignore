@@ -12,7 +12,6 @@
 /phpunit.xml
 .phpunit.result.cache
 /.phpunit.cache
-/public/tests
 ###< phpunit/phpunit ###
 
 ###> symfony/asset-mapper ###
