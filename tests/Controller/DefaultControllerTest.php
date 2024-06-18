@@ -2,11 +2,11 @@
 
 namespace App\Tests\Controller;
 
-use App\Controller\DefaultController;
+use App\Controller\HomepageController;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-#[CoversClass(DefaultController::class)]
+#[CoversClass(HomepageController::class)]
 class DefaultControllerTest extends WebTestCase
 {
     use ClientTrait;

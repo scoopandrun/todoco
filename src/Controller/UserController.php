@@ -114,7 +114,7 @@ class UserController extends AbstractController
             $request->getSession()->invalidate();
             $tokenStorage->setToken(null);
             $this->addFlash($flashType, "Votre compte a bien été supprimé.");
-            return $this->redirectToRoute('login');
+            return $this->redirectToRoute('security.login');
         }
 
         // If the request is an AJAX request, return a stream response

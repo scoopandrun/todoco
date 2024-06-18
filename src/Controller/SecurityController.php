@@ -12,12 +12,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
+#[Route(name: 'security')]
 class SecurityController extends AbstractController
 {
     /**
      * This route is used when a new user wants to create an account.
      */
-    #[Route(path: '/signup', name: 'signup', methods: ['GET', 'POST'])]
+    #[Route(path: '/signup', name: '.signup', methods: ['GET', 'POST'])]
     public function signup(
         Request $request,
         EntityManagerInterface $em,
@@ -25,7 +26,7 @@ class SecurityController extends AbstractController
     ): Response {
         // If a user is already connected, they should not be able to create a new account
         if ($this->getUser()) {
-            return $this->redirectToRoute('homepage');
+            return $this->redirectToRoute('homepage.index');
         }
 
         $user = new User();
@@ -47,7 +48,7 @@ class SecurityController extends AbstractController
             $em->flush();
 
             $this->addFlash('success', "Votre compte a bien été créé.");
-            return $this->redirectToRoute('login');
+            return $this->redirectToRoute('security.login');
         }
 
         return $this->render('security/signup.html.twig', [
@@ -55,11 +56,11 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/login', name: 'login', methods: ['GET', 'POST'])]
+    #[Route(path: '/login', name: '.login', methods: ['GET', 'POST'])]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->getUser()) {
-            return $this->redirectToRoute('homepage');
+            return $this->redirectToRoute('homepage.index');
         }
 
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -74,7 +75,7 @@ class SecurityController extends AbstractController
     /**
      * @codeCoverageIgnore
      */
-    #[Route(path: '/logout', name: 'logout', methods: ['GET'])]
+    #[Route(path: '/logout', name: '.logout', methods: ['GET'])]
     public function logout(): Response
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');

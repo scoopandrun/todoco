@@ -26,7 +26,7 @@
         <nav class="navbar navbar-light navbar-fixed-top mb-3" style="background-color: #e3f2fd;" role="navigation">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="{{ path('homepage') }}">To Do List app</a>
+                    <a class="navbar-brand" href="{{ path('homepage.index') }}">To Do List app</a>
 
                     <img src="{{ asset('img/Logo_OpenClassrooms.png') }}" alt="OpenClassrooms" />
                 </div>
@@ -55,15 +55,15 @@
                 <span class="ms-auto">
                     {% if app.user %}
                         <a href="{{ path('user.me') }}" class="pe-3">{{ app.user.username }}</a>
-                        <a href="{{ path('logout') }}" class="btn btn-danger">Se déconnecter</a>
+                        <a href="{{ path('security.logout') }}" class="btn btn-danger">Se déconnecter</a>
                     {% endif %}
 
-                    {% if not app.user and 'login' != app.request.attributes.get('_route') %}
-                        <a href="{{ path('login') }}" class="btn btn-primary">Se connecter</a>
+                    {% if not app.user and 'security.login' != app.request.attributes.get('_route') %}
+                        <a href="{{ path('security.login') }}" class="btn btn-primary">Se connecter</a>
                     {% endif %}
 
-                    {% if not app.user and 'signup' != app.request.attributes.get('_route') %}
-                        <a href="{{ path('signup') }}" class="btn btn-info">Créer un compte</a>
+                    {% if not app.user and 'security.signup' != app.request.attributes.get('_route') %}
+                        <a href="{{ path('security.signup') }}" class="btn btn-info">Créer un compte</a>
                     {% endif %}
                 </span>
             </div>
