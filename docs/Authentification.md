@@ -70,7 +70,7 @@ La route qui permet de s'authentifier est `/login` (contrôleur `SecurityControl
 
 ## Mot de passe
 
-Une série de contraites est appliquée sur le mot de passe de l'utilisateur lors de la création d'un compte ou de la mise à jour d'un mot de passe.  
+Une série de contraintes est appliquée sur le mot de passe de l'utilisateur lors de la création d'un compte ou de la mise à jour d'un mot de passe.  
 Ces contraintes sont gérées dans `App\Validator\Constraints\PasswordRequirements`.
 
 Il est notamment possible de modifier le nombre de caractères minimum, la force minimum du mot de passe ainsi que d'autres règles.
