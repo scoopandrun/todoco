@@ -7,7 +7,7 @@ Afin d'assurer une collaboration fluide, veuillez suivre ces directives :
 1. **Clonez le dépôt** : Clonez le dépôt sur votre machine locale en utilisant la commande suivante :
 
 ```shell
-git clone https://github.com/scoopandrun/ocp8.git
+$ git clone https://github.com/scoopandrun/ocp8.git
 ```
 
 2. **Créez un issue**: Créez un issue pour décrire le problème rencontré ou la fonctionnalité à implémenter.
@@ -16,7 +16,7 @@ git clone https://github.com/scoopandrun/ocp8.git
 
 4. **Effectuez vos modifications** : Implémentez vos modifications ou ajoutez de nouvelles fonctionnalités au projet. Assurez-vous que votre code respecte nos normes de codage et conventions.
 
-5. **Testez vos modifications** : Avant de soumettre votre contribution, assurez-vous de tester vos modifications en profondeur pour vous assurer qu'elles fonctionnent comme prévu.
+5. **Testez vos modifications** : Avant de soumettre votre contribution, assurez-vous de tester vos modifications en profondeur pour vous assurer qu'elles fonctionnent comme prévu. [Voir ci-dessous](#tests).
 
 6. **Commit et push** : Une fois satisfait de vos modifications, committez-les avec un message de commit clair et concis. Ensuite, poussez vos modifications.
 
@@ -33,13 +33,21 @@ Lorsque vous apportez des modifications, veuillez vous assurer qu'elles sont cou
 Exécutez la suite de tests avec la commande suivante :
 
 ```shell
-make test
+$ make test
 # ou
-bin/phpunit
+$ bin/phpunit
 ```
 
 Veuillez noter que `make test` se charge de réinitialiser la base de données de test avant chaque exécution du test.  
 Cependant, vous ne pouvez pas passer d'options PHPUnit à cette commande. Si vous avez besoin de passer des options (par exemple : `--filter=nomDeMonTest`), vous devez utiliser `bin/phpunit --filter=nomDeMonTest`.
+
+## PHPStan
+
+Merci d'utiliser PHPStan pour vous assurer de la syntaxe de votre code avant de faire un commit.
+
+```shell
+$ vendor/bin/phpstan
+```
 
 ## Conventions de codage
 
