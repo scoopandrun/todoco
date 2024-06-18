@@ -59,5 +59,17 @@ Veuillez respecter les conventions suivantes :
 - L'indentation utilise 4 espaces (conformément à la règle [PSR-12](https://www.php-fig.org/psr/psr-12/#24-indenting)).
 - Tous les noms de variables et de fonctions doivent utiliser la notation `camelCase`.
 - Utilisez des noms descriptifs pour les variables et les fonctions. Mieux vaut long que cryptique.
+- Les routes utilisent la convention suivante :
+  - nom du contrôleur : un mot descriptif se référent à la section gérée
+  - nom de méthode : court mais descriptif quant à l'action gérée
+  - path : doit reprendre le nom du contrôleur (à l'exception du contrôleur `Security`)
+  - name : _nom-du-contrôleur_._nom-de-la-méthode_ (ex : `homepage.index`)
+- Templates :
+  - l'arborescence doit reproduire l'arborescence des contrôleurs
+  - l'extension des templates doit être `.html.twig`
+  - les noms composés utilisent le kebab-case
+  - le noms des templates partiels doit commencer par un underscore
+  - les templates de Turbo Stream doivent commencer par un underscore (ce sont des partiels) et avoir l'extension `.stream.html.twig` (ex: `_action.stream.html.twig`)
+  - dans la mesure du possible, les template de création et de modification doivent être combiné en un seul template
 
 Merci !
