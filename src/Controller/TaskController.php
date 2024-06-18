@@ -59,7 +59,7 @@ class TaskController extends AbstractController
     {
         $tasks = $taskService->getTasksByUser($user);
 
-        return $this->render('task/user.html.twig', ['tasks' => $tasks]);
+        return $this->render('task/list-by-user.html.twig', ['tasks' => $tasks]);
     }
 
     #[Route(path: '/create', name: '.create', methods: ['GET', 'POST'])]
