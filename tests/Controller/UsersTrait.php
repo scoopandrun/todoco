@@ -14,7 +14,7 @@ trait UsersTrait
 
     private function getUserRepository(): UserRepository
     {
-        if (is_null($this->userRepository)) {
+        if (null === $this->userRepository) {
             $this->userRepository = static::getContainer()->get(UserRepository::class);
         }
 
