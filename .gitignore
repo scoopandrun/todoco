@@ -21,7 +21,6 @@
 
 ###> local environment ###
 /docker/
-**/phpinfo.php
 ###< local environment ###
 
 ###> phpstan/phpstan ###
