@@ -36,7 +36,7 @@ trait ClientTrait
 
     private function getAdminClient(bool $followRedirects = true): KernelBrowser
     {
-        if (is_null($this->adminClient)) {
+        if (null === $this->adminClient) {
             $this->adminClient = $this->getUnauthenticatedClient($followRedirects);
             $this->adminClient->loginUser($this->getUser('Admin'));
         }

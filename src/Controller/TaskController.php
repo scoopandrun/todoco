@@ -40,7 +40,7 @@ class TaskController extends AbstractController
     public function list(TaskService $taskService): Response
     {
         $isDone = $this->request->query->get('done');
-        $isDone = is_null($isDone) ? null : (bool) $isDone;
+        $isDone = (null === $isDone) ? null : (bool) $isDone;
 
         // Save query parameter to session
         $this->request->getSession()->set('done', $isDone);
@@ -191,7 +191,7 @@ class TaskController extends AbstractController
     private function redirectToList(): Response
     {
         $queryParameterDone = $this->request->getSession()->get('done');
-        $redirectUrl = $this->generateUrl('task.list') . (is_null($queryParameterDone) ? '' : '?done=' . $queryParameterDone);
+        $redirectUrl = $this->generateUrl('task.list') . ((null === $queryParameterDone) ? '' : '?done=' . $queryParameterDone);
 
         return $this->redirect($redirectUrl);
     }
