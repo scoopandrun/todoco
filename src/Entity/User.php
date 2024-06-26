@@ -197,14 +197,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->tasks;
     }
-
-    public function addTask(Task $task): static
-    {
-        if (!$this->tasks->contains($task)) {
-            $this->tasks->add($task);
-            $task->setAuthor($this);
-        }
-
-        return $this;
-    }
 }

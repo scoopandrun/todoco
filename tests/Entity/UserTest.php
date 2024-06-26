@@ -211,17 +211,4 @@ class UserTest extends TestCase
         // Then
         $this->assertEmpty($user->getTasks());
     }
-
-    public function testAddTask(): void
-    {
-        // Given
-        $user = new User();
-        $task = new Task();
-
-        // When
-        $user->addTask($task);
-
-        // Then
-        $this->assertContains($task, $user->getTasks());
-    }
 }
