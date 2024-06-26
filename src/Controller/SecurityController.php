@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Service\UserService;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +20,6 @@ class SecurityController extends AbstractController
     #[Route(path: '/signup', name: '.signup', methods: ['GET', 'POST'])]
     public function signup(
         Request $request,
-        EntityManagerInterface $em,
         UserService $userService,
     ): Response {
         // If a user is already connected, they should not be able to create a new account
@@ -40,12 +38,7 @@ class SecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $userService->setPassword($user);
-
-            $user->eraseCredentials();
-
-            $em->persist($user);
-            $em->flush();
+            $userService->createUser($user);
 
             $this->addFlash('success', "Votre compte a bien été créé.");
             return $this->redirectToRoute('security.login');
