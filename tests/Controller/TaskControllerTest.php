@@ -264,6 +264,22 @@ class TaskControllerTest extends WebTestCase
         $this->assertSelectorTextNotContains('body', $user2Task->getTitle());
     }
 
+    public function testTaskListByUserWithFilterShowsDoneTasks(): void
+    {
+        // Given
+        [$client, $user] = $this->getAuthenticatedClient('User1', followRedirects: false);
+        $doneTask = $this->createRandomTask($user, true, persist: true);
+        $undoneTask = $this->createRandomTask($user, false, persist: true);
+
+        // When
+        $client->request('GET', "/tasks/user/{$user->getId()}?done=1");
+
+        // Then
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('body', $doneTask->getTitle());
+        $this->assertSelectorTextNotContains('body', $undoneTask->getTitle());
+    }
+
     public function testDeletingATaskFromListByUserPageRedirectsToSamePage(): void
     {
         // Given
