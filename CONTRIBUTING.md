@@ -26,6 +26,13 @@ $ git clone https://github.com/scoopandrun/ocp8.git
 
 9. **Fusion** : Une fois votre pull request approuvée, elle sera fusionnée dans la branche principale.
 
+## Intégration Continue
+
+L'outil GrumPHP est installé et configuré dans le dépôt.  
+Lors de chaque commit, GrumPHP lancera PHPStan et PHPUnit pour s'assurer de la qualité du code. Toute erreur empêchera la validation du commit.
+
+Vous pouvez lancer ces outils individuellement à la demande (voir ci-dessous).
+
 ## Tests
 
 Lorsque vous apportez des modifications, veuillez vous assurer qu'elles sont couvertes par des tests unitaires et/ou fonctionnels (tous les tests se trouvent dans le répertoire `tests`).
