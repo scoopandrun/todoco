@@ -39,8 +39,7 @@ class TaskController extends AbstractController
     #[IsGranted(TaskVoter::LIST)]
     public function list(): Response
     {
-        $isDone = $this->request->query->get('done');
-        $isDone = (null === $isDone) ? null : (bool) $isDone;
+        $isDone = $this->getIsDoneQueryParameter();
 
         $tasks = $this->taskService->getTasks($isDone);
 
@@ -54,9 +53,14 @@ class TaskController extends AbstractController
     #[IsGranted(TaskVoter::LIST)]
     public function listByUser(User $user): Response
     {
+        $isDone = $this->getIsDoneQueryParameter();
+
         $tasks = $this->taskService->getTasksByUser($user, $isDone);
 
-        return $this->render('task/list-by-user.html.twig', ['tasks' => $tasks]);
+        return $this->render('task/list-by-user.html.twig', [
+            'tasks' => $tasks,
+            'user' => $user,
+        ]);
     }
 
     #[Route(path: '/create', name: '.create', methods: ['GET', 'POST'])]
@@ -176,9 +180,21 @@ class TaskController extends AbstractController
      */
     private function redirectToList(): Response
     {
+        /** @var ?bool $queryParameterDone */
         $queryParameterDone = $this->request->getSession()->get('done');
-        $redirectUrl = $this->generateUrl('task.list') . ((null === $queryParameterDone) ? '' : '?done=' . $queryParameterDone);
+        $redirectUrl = $this->generateUrl('task.list') . ((null === $queryParameterDone) ? '' : '?done=' . (int) $queryParameterDone);
 
         return $this->redirect($redirectUrl);
+    }
+
+    private function getIsDoneQueryParameter(): ?bool
+    {
+        $isDone = $this->request->query->get('done');
+        $isDone = (null === $isDone) ? null : (bool) $isDone;
+
+        // Save query parameter to session
+        $this->request->getSession()->set('done', $isDone);
+
+        return $isDone;
     }
 }
