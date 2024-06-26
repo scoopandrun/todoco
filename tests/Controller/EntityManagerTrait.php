@@ -10,7 +10,7 @@ trait EntityManagerTrait
 
     private function getEntityManager(): EntityManagerInterface
     {
-        if (is_null($this->entityManager)) {
+        if (null === $this->entityManager) {
             $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         }
 

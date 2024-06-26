@@ -22,7 +22,7 @@ class TaskService
      */
     public function getTasks(?bool $isDone = null): array
     {
-        if (!is_null($isDone)) {
+        if (null !== $isDone) {
             $tasks = $this->taskRepository->findBy(['isDone' => $isDone]);
         } else {
             $tasks = $this->taskRepository->findAll();

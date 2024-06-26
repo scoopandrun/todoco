@@ -7,7 +7,6 @@ use App\Form\UserType;
 use App\Repository\UserRepository;
 use App\Security\Voter\UserVoter;
 use App\Service\UserService;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,11 +31,8 @@ class UserController extends AbstractController
      */
     #[Route(path: '/create', name: '.create', methods: ['GET', 'POST'])]
     #[IsGranted(UserVoter::CREATE)]
-    public function create(
-        Request $request,
-        EntityManagerInterface $em,
-        UserService $userService,
-    ): Response {
+    public function create(Request $request, UserService $userService): Response
+    {
         $user = new User();
 
         $form = $this->createForm(UserType::class, $user, [
@@ -48,12 +44,7 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $userService->setPassword($user);
-
-            $user->eraseCredentials();
-
-            $em->persist($user);
-            $em->flush();
+            $userService->createUser($user);
 
             $this->addFlash('success', "L'utilisateur a bien été ajouté.");
             return $this->redirectToRoute('user.list');
@@ -68,7 +59,7 @@ class UserController extends AbstractController
     public function edit(
         User $user,
         Request $request,
-        EntityManagerInterface $em,
+        UserService $userService,
     ): Response {
         $this->denyAccessUnlessGranted(UserVoter::EDIT, $user);
 
@@ -79,7 +70,7 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
+            $userService->updateUser($user);
 
             $this->addFlash('success', "L'utilisateur a bien été modifié.");
 
@@ -95,7 +86,7 @@ class UserController extends AbstractController
     #[Route(path: '/{id}', name: '.delete', methods: ['DELETE'], requirements: ['id' => '\d+'])]
     public function delete(
         User $user,
-        EntityManagerInterface $em,
+        UserService $userService,
         Request $request,
         TokenStorageInterface $tokenStorage,
     ): Response {
@@ -103,8 +94,7 @@ class UserController extends AbstractController
 
         $userId = $user->getId();
 
-        $em->remove($user);
-        $em->flush();
+        $userService->deleteUser($user);
 
         $flashType = 'success';
         $flashMessage = "L'utilisateur a bien été supprimé.";
@@ -114,7 +104,7 @@ class UserController extends AbstractController
             $request->getSession()->invalidate();
             $tokenStorage->setToken(null);
             $this->addFlash($flashType, "Votre compte a bien été supprimé.");
-            return $this->redirectToRoute('login');
+            return $this->redirectToRoute('security.login');
         }
 
         // If the request is an AJAX request, return a stream response
@@ -138,11 +128,8 @@ class UserController extends AbstractController
     }
 
     #[Route(path: '/me', name: '.me', methods: ['GET', 'PUT'])]
-    public function me(
-        Request $request,
-        EntityManagerInterface $em,
-        UserService $userService,
-    ): Response {
+    public function me(Request $request, UserService $userService): Response
+    {
         /** @var User $user */
         $user = $this->getUser();
 
@@ -153,9 +140,7 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $userService->setPassword($user);
-
-            $em->flush();
+            $userService->updateUser($user);
 
             $this->addFlash('success', "Votre compte a bien été modifié.");
 
