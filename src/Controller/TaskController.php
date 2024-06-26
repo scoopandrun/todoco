@@ -7,7 +7,6 @@ use App\Entity\User;
 use App\Form\TaskType;
 use App\Security\Voter\TaskVoter;
 use App\Service\TaskService;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -26,6 +25,7 @@ class TaskController extends AbstractController
 
     public function __construct(
         RequestStack $requestStack,
+        private TaskService $taskService,
     ) {
         $this->request = $requestStack->getCurrentRequest();
     }
@@ -37,15 +37,12 @@ class TaskController extends AbstractController
      */
     #[Route(path: '', name: '.list', methods: ['GET'])]
     #[IsGranted(TaskVoter::LIST)]
-    public function list(TaskService $taskService): Response
+    public function list(): Response
     {
         $isDone = $this->request->query->get('done');
         $isDone = (null === $isDone) ? null : (bool) $isDone;
 
-        // Save query parameter to session
-        $this->request->getSession()->set('done', $isDone);
-
-        $tasks = $taskService->getTasks($isDone);
+        $tasks = $this->taskService->getTasks($isDone);
 
         return $this->render('task/list.html.twig', ['tasks' => $tasks]);
     }
@@ -55,16 +52,16 @@ class TaskController extends AbstractController
      */
     #[Route(path: '/user/{id}', name: '.list-by-user', methods: ['GET'], requirements: ['id' => '\d+'])]
     #[IsGranted(TaskVoter::LIST)]
-    public function listByUser(User $user, TaskService $taskService): Response
+    public function listByUser(User $user): Response
     {
-        $tasks = $taskService->getTasksByUser($user);
+        $tasks = $this->taskService->getTasksByUser($user, $isDone);
 
         return $this->render('task/list-by-user.html.twig', ['tasks' => $tasks]);
     }
 
     #[Route(path: '/create', name: '.create', methods: ['GET', 'POST'])]
     #[IsGranted(TaskVoter::CREATE)]
-    public function create(EntityManagerInterface $entityManager): Response
+    public function create(): Response
     {
         $task = new Task();
 
@@ -72,12 +69,7 @@ class TaskController extends AbstractController
         $form->handleRequest($this->request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var User $author */
-            $author = $this->getUser();
-            $author->addTask($task);
-
-            $entityManager->persist($task);
-            $entityManager->flush();
+            $this->taskService->createTask($task);
 
             $this->addFlash('success', 'La tâche a bien été ajoutée.');
 
@@ -90,7 +82,7 @@ class TaskController extends AbstractController
     }
 
     #[Route(path: '/{id}/edit', name: '.edit', methods: ['GET', 'PUT'])]
-    public function edit(Task $task, EntityManagerInterface $entityManager): Response
+    public function edit(Task $task): Response
     {
         $this->denyAccessUnlessGranted(TaskVoter::EDIT, $task);
 
@@ -98,7 +90,7 @@ class TaskController extends AbstractController
         $form->handleRequest($this->request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $this->taskService->updateTask($task);
 
             $this->addFlash('success', 'La tâche a bien été modifiée.');
 
@@ -112,14 +104,11 @@ class TaskController extends AbstractController
     }
 
     #[Route(path: '/{id}', name: '.toggle', methods: ['PATCH'])]
-    public function toggle(
-        Task $task,
-        EntityManagerInterface $entityManager,
-    ): Response {
+    public function toggle(Task $task): Response
+    {
         $this->denyAccessUnlessGranted(TaskVoter::TOGGLE, $task);
 
-        $task->setIsDone(!$task->isDone());
-        $entityManager->flush();
+        $this->taskService->toggleTask($task);
 
         $status = $task->isDone() ? 'faite' : 'non terminée';
         $flashType = 'success';
@@ -145,17 +134,14 @@ class TaskController extends AbstractController
     }
 
     #[Route(path: '/{id}', name: '.delete', methods: ['DELETE'])]
-    public function delete(
-        Task $task,
-        EntityManagerInterface $entityManager,
-    ): Response {
+    public function delete(Task $task): Response
+    {
         $this->denyAccessUnlessGranted(TaskVoter::DELETE, $task, "Vous ne pouvez pas supprimer une tâche que vous n'avez pas créée.");
 
         $taskId = $task->getId();
         $authorId = $task->getAuthor()?->getId();
 
-        $entityManager->remove($task);
-        $entityManager->flush();
+        $this->taskService->deleteTask($task);
 
         $flashType = 'success';
         $flashMessage = 'La tâche a bien été supprimée.';
