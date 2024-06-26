@@ -33,6 +33,12 @@ Lors de chaque commit, GrumPHP lancera PHPStan et PHPUnit pour s'assurer de la q
 
 Vous pouvez lancer ces outils individuellement à la demande (voir ci-dessous).
 
+GrumPHP peut être lancé manuellement avec la commande suivante :
+
+```shell
+$ vendor/bin/grumphp run
+```
+
 ## Tests
 
 Lorsque vous apportez des modifications, veuillez vous assurer qu'elles sont couvertes par des tests unitaires et/ou fonctionnels (tous les tests se trouvent dans le répertoire `tests`).
@@ -40,12 +46,20 @@ Lorsque vous apportez des modifications, veuillez vous assurer qu'elles sont cou
 Exécutez la suite de tests avec la commande suivante :
 
 ```shell
+# Tests avec rapport de couverture de code
 $ make test
+
 # ou
+
+# Tests sans rapport de couverture de code
+$ make test-nocoverage
+
+# ou
+
 $ bin/phpunit
 ```
 
-Veuillez noter que `make test` se charge de réinitialiser la base de données de test avant chaque exécution du test.  
+Veuillez noter que `make test[-nocoverage]` se charge de réinitialiser la base de données de test avant chaque exécution du test.  
 Cependant, vous ne pouvez pas passer d'options PHPUnit à cette commande. Si vous avez besoin de passer des options (par exemple : `--filter=nomDeMonTest`), vous devez utiliser `bin/phpunit --filter=nomDeMonTest`.
 
 ## PHPStan

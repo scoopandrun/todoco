@@ -1,4 +1,5 @@
 grumphp:
     tasks:
         phpstan: ~
-        phpunit: ~
+        make:
+            task: test-nocoverage
