@@ -4,11 +4,11 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserType;
-use App\Repository\UserRepository;
 use App\Security\Voter\UserVoter;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -18,11 +18,24 @@ use Symfony\UX\Turbo\TurboBundle;
 #[Route('/users', name: 'user')]
 class UserController extends AbstractController
 {
+    /**
+     * The current request.
+     */
+    private Request $request;
+
+    public function __construct(
+        RequestStack $requestStack,
+        private UserService $userService,
+    ) {
+        $this->request = $requestStack->getCurrentRequest();
+    }
+
     #[Route(path: '', name: '.list', methods: ['GET'])]
     #[IsGranted(UserVoter::LIST)]
-    public function list(UserRepository $userRepository): Response
+    public function list(): Response
     {
-        $users = $userRepository->findAll();
+        $users = $this->userService->getUsers();
+
         return $this->render('user/list.html.twig', ['users' => $users]);
     }
 
@@ -31,7 +44,7 @@ class UserController extends AbstractController
      */
     #[Route(path: '/create', name: '.create', methods: ['GET', 'POST'])]
     #[IsGranted(UserVoter::CREATE)]
-    public function create(Request $request, UserService $userService): Response
+    public function create(): Response
     {
         $user = new User();
 
@@ -41,10 +54,10 @@ class UserController extends AbstractController
             'new_password_label' => 'Mot de passe',
             'new_password_required' => true,
         ]);
-        $form->handleRequest($request);
+        $form->handleRequest($this->request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $userService->createUser($user);
+            $this->userService->createUser($user);
 
             $this->addFlash('success', "L'utilisateur a bien été ajouté.");
             return $this->redirectToRoute('user.list');
@@ -56,21 +69,18 @@ class UserController extends AbstractController
     }
 
     #[Route(path: '/{id}', name: '.edit', methods: ['GET', 'PUT'], requirements: ['id' => '\d+'])]
-    public function edit(
-        User $user,
-        Request $request,
-        UserService $userService,
-    ): Response {
+    public function edit(User $user): Response
+    {
         $this->denyAccessUnlessGranted(UserVoter::EDIT, $user);
 
         $form = $this->createForm(UserType::class, $user, [
             'method' => 'PUT',
             'validation_groups' => ['Default', 'account_update'],
         ]);
-        $form->handleRequest($request);
+        $form->handleRequest($this->request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $userService->updateUser($user);
+            $this->userService->updateUser($user);
 
             $this->addFlash('success', "L'utilisateur a bien été modifié.");
 
@@ -84,32 +94,28 @@ class UserController extends AbstractController
     }
 
     #[Route(path: '/{id}', name: '.delete', methods: ['DELETE'], requirements: ['id' => '\d+'])]
-    public function delete(
-        User $user,
-        UserService $userService,
-        Request $request,
-        TokenStorageInterface $tokenStorage,
-    ): Response {
+    public function delete(User $user, TokenStorageInterface $tokenStorage): Response
+    {
         $this->denyAccessUnlessGranted(UserVoter::DELETE, $user);
 
         $userId = $user->getId();
 
-        $userService->deleteUser($user);
+        $this->userService->deleteUser($user);
 
         $flashType = 'success';
         $flashMessage = "L'utilisateur a bien été supprimé.";
 
         // If the user is deleting their own account, log them out
         if ($user === $this->getUser()) {
-            $request->getSession()->invalidate();
+            $this->request->getSession()->invalidate();
             $tokenStorage->setToken(null);
             $this->addFlash($flashType, "Votre compte a bien été supprimé.");
             return $this->redirectToRoute('security.login');
         }
 
         // If the request is an AJAX request, return a stream response
-        if ($request->getPreferredFormat() === TurboBundle::STREAM_FORMAT) {
-            $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
+        if ($this->request->getPreferredFormat() === TurboBundle::STREAM_FORMAT) {
+            $this->request->setRequestFormat(TurboBundle::STREAM_FORMAT);
 
             return $this->render(
                 'user/_delete.stream.html.twig',
@@ -128,7 +134,7 @@ class UserController extends AbstractController
     }
 
     #[Route(path: '/me', name: '.me', methods: ['GET', 'PUT'])]
-    public function me(Request $request, UserService $userService): Response
+    public function me(): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -137,10 +143,10 @@ class UserController extends AbstractController
             'method' => 'PUT',
             'validation_groups' => ['Default', 'account_update'],
         ]);
-        $form->handleRequest($request);
+        $form->handleRequest($this->request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $userService->updateUser($user);
+            $this->userService->updateUser($user);
 
             $this->addFlash('success', "Votre compte a bien été modifié.");
 
