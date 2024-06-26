@@ -3,13 +3,13 @@
 {% block header_img %}<img class="w-100" src="{{ asset('img/todolist_content.jpg') }}" alt="todo list">{% endblock %}
 
 {% block body %}
-    <div class="d-flex gap-1 mb-3">
-        <a href="{{ path('task.list') }}" class="btn btn-success" data-turbo-frame="tasks">Consulter la liste des tâches</a>
-        <a href="{{ path('task.list') }}?done=0" class="btn btn-info" data-turbo-frame="tasks">Consulter la liste des tâches à faire</a>
-        <a href="{{ path('task.list') }}?done=1" class="btn btn-secondary" data-turbo-frame="tasks">Consulter la liste des tâches terminées</a>
-    </div>
-
     <turbo-frame id="tasks">
+        <div class="d-flex gap-1 mb-3">
+            <a href="{{ path('task.list') }}" class="btn btn-success" data-turbo-frame="tasks">Consulter la liste des tâches</a>
+            <a href="{{ path('task.list') }}?done=0" class="btn btn-info" data-turbo-frame="tasks">Consulter la liste des tâches à faire</a>
+            <a href="{{ path('task.list') }}?done=1" class="btn btn-secondary" data-turbo-frame="tasks">Consulter la liste des tâches terminées</a>
+        </div>
+
         <div class="row">
             {% for task in tasks %}
                 {% include("task/_task-card.html.twig") %}
