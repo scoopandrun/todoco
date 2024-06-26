@@ -14,16 +14,6 @@ class UserService
     ) {
     }
 
-    /**
-     * Set the password of the user if a new password has been set.
-     */
-    public function setPassword(User $user): void
-    {
-        if ($user->getNewPassword()) {
-            $user->setPassword($this->userPasswordHasher->hashPassword($user, $user->getNewPassword()));
-        }
-    }
-
     public function createUser(User $user): void
     {
         $this->setPassword($user);
@@ -47,5 +37,15 @@ class UserService
     {
         $this->entityManager->remove($user);
         $this->entityManager->flush();
+    }
+
+    /**
+     * Set the password of the user if a new password has been set.
+     */
+    private function setPassword(User $user): void
+    {
+        if ($user->getNewPassword()) {
+            $user->setPassword($this->userPasswordHasher->hashPassword($user, $user->getNewPassword()));
+        }
     }
 }
