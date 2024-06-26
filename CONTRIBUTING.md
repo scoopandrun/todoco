@@ -46,12 +46,20 @@ Lorsque vous apportez des modifications, veuillez vous assurer qu'elles sont cou
 Exécutez la suite de tests avec la commande suivante :
 
 ```shell
+# Tests avec rapport de couverture de code
 $ make test
+
 # ou
+
+# Tests sans rapport de couverture de code
+$ make test-nocoverage
+
+# ou
+
 $ bin/phpunit
 ```
 
-Veuillez noter que `make test` se charge de réinitialiser la base de données de test avant chaque exécution du test.  
+Veuillez noter que `make test[-nocoverage]` se charge de réinitialiser la base de données de test avant chaque exécution du test.  
 Cependant, vous ne pouvez pas passer d'options PHPUnit à cette commande. Si vous avez besoin de passer des options (par exemple : `--filter=nomDeMonTest`), vous devez utiliser `bin/phpunit --filter=nomDeMonTest`.
 
 ## PHPStan
