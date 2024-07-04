@@ -97,6 +97,7 @@ class TaskControllerTest extends WebTestCase
         $icon = $crawler->filter("#task-{$task->getId()}-icon");
         $this->assertCount(1, $icon->filter('i.bi-check'));
         $this->assertCount(0, $icon->filter('i.bi-x'));
+        $this->assertSelectorTextContains("#task-{$task->getId()}", "Marquer non terminée");
     }
 
     public function testTaskCanBeToggledUndone(): void
@@ -118,6 +119,7 @@ class TaskControllerTest extends WebTestCase
         $icon = $crawler->filter("#task-{$task->getId()}-icon");
         $this->assertCount(0, $icon->filter('i.bi-check'));
         $this->assertCount(1, $icon->filter('i.bi-x'));
+        $this->assertSelectorTextContains("#task-{$task->getId()}", "Marquer comme faite");
     }
 
     public function testTaskCanBeEdited(): void
