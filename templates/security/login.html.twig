@@ -5,7 +5,7 @@
         <div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
     {% endif %}
 
-    <form method="post">
+    <form method="post" data-turbo="false">
         <label for="username">Nom d'utilisateur :</label>
         <input type="text" id="username" name="_username" autocomplete="username" value="{{ last_username }}" />
 
