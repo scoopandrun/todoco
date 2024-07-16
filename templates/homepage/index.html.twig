@@ -6,7 +6,7 @@
 
 {% block body %}
 
-    <div class="d-flex gap-1">
+    <div class="d-flex gap-1 flex-column flex-md-row">
         <a href="{{ path('task.list') }}" class="btn btn-success">Consulter la liste des tâches</a>
         <a href="{{ path('task.list') }}?done=0" class="btn btn-info">Consulter la liste des tâches à faire</a>
         <a href="{{ path('task.list') }}?done=1" class="btn btn-secondary">Consulter la liste des tâches terminées</a>

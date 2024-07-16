@@ -1,0 +1,61 @@
+<nav class="navbar navbar-expand-md navbar-light navbar-fixed-top mb-3" style="background-color: #e3f2fd;" role="navigation">
+    <div class="container">
+        <a class="navbar-brand" href="{{ path('homepage.index') }}">To Do List app</a>
+
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarScroll"
+            aria-controls="navbarScroll"
+            aria-expanded="false"
+            aria-label="Afficher/masquer la navigation"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarScroll">
+            <ul class="navbar-nav">
+                {% if is_granted(constant('CREATE', TaskVoter)) %}
+                    <li class="nav-item my-1 my-md-0 mx-md-1">
+                        <a href="{{ path('task.create') }}" class="d-none d-md-inline-block btn btn-info">Créer une tâche</a>
+                        <a href="{{ path('task.create') }}" class="d-md-none link-primary link-offset-2">Créer une tâche</a>
+                    </li>
+                {% endif %}
+
+                {% if is_granted(constant('LIST', UserVoter)) %}
+                    <li class="nav-item my-1 my-md-0 mx-md-1">
+                        <a href="{{ path('user.list') }}" class="d-none d-md-inline-block btn btn-primary">Gérer les utilisateurs</a>
+                        <a href="{{ path('user.list') }}" class="d-md-none link-primary link-offset-2">Gérer les utilisateurs</a>
+                    </li>
+                {% endif %}
+            </ul>
+
+            <ul class="navbar-nav ms-md-auto">
+                {% if app.user %}
+                    <li class="nav-item my-1 my-md-0 mx-md-1">
+                        <a href="{{ path('user.me') }}" class="d-none d-md-inline-block btn btn-dark" title="Modifier le profil">{{ app.user.username }}</a>
+                        <a href="{{ path('user.me') }}" class="d-md-none link-dark link-offset-2 link-underline-opacity-25" title="Modifier le profil">Profil ({{ app.user.username }})</a>
+                    </li>
+                    <li class="nav-item my-1 my-md-0 mx-md-1">
+                        <a href="{{ path('security.logout') }}" class="d-none d-md-inline-block btn btn-danger">Se déconnecter</a>
+                        <a href="{{ path('security.logout') }}" class="d-md-none link-danger link-offset-2 link-underline-opacity-25">Se déconnecter</a>
+                    </li>
+                {% endif %}
+
+                {% if not app.user and 'security.login' != app.request.attributes.get('_route') %}
+                    <li class="nav-item my-1 my-md-0 mx-md-1">
+                        <a href="{{ path('security.login') }}" class="d-none d-md-inline-block btn btn-primary">Se connecter</a>
+                        <a href="{{ path('security.login') }}" class="d-md-none link-primary link-offset-2">Se connecter</a>
+                    </li>
+                {% endif %}
+
+                {% if not app.user and 'security.signup' != app.request.attributes.get('_route') %}
+                    <li class="nav-item my-1 my-md-0 mx-md-1">
+                        <a href="{{ path('security.signup') }}" class="d-none d-md-inline-block btn btn-info">Créer un compte</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

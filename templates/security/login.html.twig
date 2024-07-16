@@ -6,14 +6,23 @@
     {% endif %}
 
     <form method="post" data-turbo="false">
-        <label for="username">Nom d'utilisateur :</label>
-        <input type="text" id="username" name="_username" autocomplete="username" value="{{ last_username }}" />
+        <div class="mb-3">
+            <label for="username" class="form-label">Nom d'utilisateur :</label>
+            <input type="text" class="form-control" id="username" name="_username" autocomplete="username" value="{{ last_username }}" />
+        </div>
 
-        <label for="password">Mot de passe :</label>
-        <input type="password" id="password" name="_password" autocomplete="current-password" />
+        <div class="mb-3">
+            <label for="password" class="form-label">Mot de passe :</label>
+            <input type="password" class="form-control" id="password" name="_password" autocomplete="current-password" />
+        </div>
 
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
 
         <button class="btn btn-success" type="submit">Se connecter</button>
     </form>
+
+    <div class="mt-5">
+        Pas encore inscrit(e) ?&nbsp;
+        <a href="{{ path('security.signup') }}" class="btn btn-info">Créer un compte</a>
+    </div>
 {% endblock %}
