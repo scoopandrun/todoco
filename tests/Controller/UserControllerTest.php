@@ -77,8 +77,8 @@ class UserControllerTest extends WebTestCase
         $this->assertResponseRedirects('/users');
         $crawler = $client->followRedirect();
         $this->assertSelectorTextContains('.alert-success', "L'utilisateur a bien été ajouté.");
-        $this->assertSelectorTextContains('table', $newUser->getUsername());
-        $this->assertSelectorTextContains('table', $newUser->getEmail());
+        $this->assertSelectorTextContains('table', (string) $newUser->getUsername());
+        $this->assertSelectorTextContains('table', (string) $newUser->getEmail());
     }
 
     public function testAdminCanEditAUser(): void
@@ -87,7 +87,7 @@ class UserControllerTest extends WebTestCase
         $client = $this->getAdminClient(followRedirects: false);
         $user = $this->createRandomUser(persist: true);
         $editedUsername = $user->getUsername() . 'edited';
-        $editedEmail = str_replace('@', 'edited@', $user->getEmail());
+        $editedEmail = str_replace('@', 'edited@', (string) $user->getEmail());
 
         // When
         $crawler = $client->request('GET', "/users/{$user->getId()}");
@@ -161,7 +161,7 @@ class UserControllerTest extends WebTestCase
         $user = $this->createRandomUser(persist: true);
         $client->loginUser($user);
         $editedUsername = $user->getUsername() . 'edited';
-        $editedEmail = str_replace('@', 'edited@', $user->getEmail());
+        $editedEmail = str_replace('@', 'edited@', (string) $user->getEmail());
         $newPassword = bin2hex(random_bytes(16));
 
         // When
@@ -223,8 +223,8 @@ class UserControllerTest extends WebTestCase
         $this->assertResponseRedirects('/users');
         $client->followRedirect();
         $this->assertSelectorTextContains('.alert-success', "L'utilisateur a bien été supprimé.");
-        $this->assertSelectorTextNotContains('table', $user->getUsername());
-        $this->assertSelectorTextNotContains('table', $user->getEmail());
+        $this->assertSelectorTextNotContains('table', (string) $user->getUsername());
+        $this->assertSelectorTextNotContains('table', (string) $user->getEmail());
     }
 
     public function testDeletingUserWithStreamFormatRedirectsToStream(): void

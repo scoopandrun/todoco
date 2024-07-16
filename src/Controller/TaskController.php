@@ -25,9 +25,15 @@ class TaskController extends AbstractController
 
     public function __construct(
         RequestStack $requestStack,
-        private TaskService $taskService,
+        private readonly TaskService $taskService,
     ) {
-        $this->request = $requestStack->getCurrentRequest();
+        $currentRequest = $requestStack->getCurrentRequest();
+
+        if (null === $currentRequest) {
+            throw new \LogicException('The request cannot be null.');
+        }
+
+        $this->request = $currentRequest;
     }
 
     /**
@@ -49,7 +55,7 @@ class TaskController extends AbstractController
     /**
      * List tasks by user.
      */
-    #[Route(path: '/user/{id}', name: '.list-by-user', methods: ['GET'], requirements: ['id' => '\d+'])]
+    #[Route(path: '/user/{id}', name: '.list-by-user', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[IsGranted(TaskVoter::LIST)]
     public function listByUser(User $user): Response
     {
@@ -168,7 +174,7 @@ class TaskController extends AbstractController
 
         // Check if the request comes from the list page or the list by user page
         $referer = $this->request->headers->get('referer') ?? '';
-        if (strpos($referer, '/tasks/user/') !== false) {
+        if (str_contains($referer, '/tasks/user/')) {
             return $this->redirectToRoute('task.list-by-user', ['id' => $authorId]);
         }
 

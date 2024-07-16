@@ -15,13 +15,15 @@ trait UsersTrait
     private function getUserRepository(): UserRepository
     {
         if (null === $this->userRepository) {
-            $this->userRepository = static::getContainer()->get(UserRepository::class);
+            /** @var UserRepository */
+            $userRepository = static::getContainer()->get(UserRepository::class);
+            $this->userRepository = $userRepository;
         }
 
         return $this->userRepository;
     }
 
-    private function getUser(string $username): User
+    private function getUser(string $username): ?User
     {
         return $this->getUserRepository()->findOneBy(['username' => $username]);
     }
@@ -32,6 +34,7 @@ trait UsersTrait
         string $email,
         bool $persist = true,
     ): User {
+        /** @var UserPasswordHasherInterface */
         $passwordHasher = static::getContainer()->get(UserPasswordHasherInterface::class);
 
         $user = (new User())
@@ -40,7 +43,7 @@ trait UsersTrait
             ->setNewPassword($password)
             ->setEmail($email);
 
-        $user->setPassword($passwordHasher->hashPassword($user, $user->getNewPassword()));
+        $user->setPassword($passwordHasher->hashPassword($user, $password));
 
         if ($persist) {
             $this->getEntityManager()->persist($user);

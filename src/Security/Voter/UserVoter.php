@@ -44,19 +44,41 @@ final class UserVoter extends Voter
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case self::LIST:
-                return $user->isAdmin();
+                return $this->canList($user);
 
             case self::CREATE:
-                // An admin can create an account
-                return $user->isAdmin();
+                return $this->canCreate($user);
 
             case self::EDIT:
-                return $user->isAdmin() || $user === $subject;
+                /** @var User $subject */
+                return $this->canEdit($user, $subject);
 
             case self::DELETE:
-                return $user->isAdmin() || $user === $subject;
+                /** @var User $subject */
+                return $this->canDelete($user, $subject);
         }
 
         throw new \LogicException('This code should not be reached!'); // @codeCoverageIgnore
+    }
+
+    private function canList(User $user): bool
+    {
+        return $user->isAdmin();
+    }
+
+    private function canCreate(User $user): bool
+    {
+        // An admin can create an account
+        return $user->isAdmin();
+    }
+
+    private function canEdit(User $user, User $subject): bool
+    {
+        return $user->isAdmin() || $user === $subject;
+    }
+
+    private function canDelete(User $user, User $subject): bool
+    {
+        return $user->isAdmin() || $user === $subject;
     }
 }

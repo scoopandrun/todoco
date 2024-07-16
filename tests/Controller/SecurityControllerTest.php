@@ -125,8 +125,8 @@ class SecurityControllerTest extends WebTestCase
         // Given
         $client = $this->getUnauthenticatedClient(followRedirects: true);
         $user1 = $this->getUser('User1');
-        $username = $user1->getUsername();
-        $email = $user1->getEmail();
+        $username = $user1?->getUsername();
+        $email = $user1?->getEmail();
 
         // When
         $crawler = $client->request('GET', '/signup');

@@ -1,8 +1,8 @@
 parameters:
-    level: 6
+    level: 9
     paths:
         - config/
         - public/
         - src/
         - tests/
-    treatPhpDocTypesAsCertain: false
+        
