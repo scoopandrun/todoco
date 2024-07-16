@@ -25,9 +25,15 @@ class UserController extends AbstractController
 
     public function __construct(
         RequestStack $requestStack,
-        private UserService $userService,
+        private readonly UserService $userService,
     ) {
-        $this->request = $requestStack->getCurrentRequest();
+        $currentRequest = $requestStack->getCurrentRequest();
+
+        if (null === $currentRequest) {
+            throw new \LogicException('The request cannot be null.');
+        }
+
+        $this->request = $currentRequest;
     }
 
     #[Route(path: '', name: '.list', methods: ['GET'])]

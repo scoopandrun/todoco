@@ -18,7 +18,9 @@ use Symfony\UX\Turbo\TurboBundle;
 #[CoversClass(TaskVoter::class)]
 class TaskControllerTest extends WebTestCase
 {
-    use ClientTrait, TasksTrait, UsersTrait;
+    use ClientTrait;
+    use TasksTrait;
+    use UsersTrait;
 
     public function testTasksPageIsUp(): void
     {
@@ -74,8 +76,8 @@ class TaskControllerTest extends WebTestCase
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
         $this->assertSelectorTextContains('.alert-success', 'La tâche a bien été ajoutée.');
-        $this->assertSelectorTextContains('body', $task->getTitle());
-        $this->assertSelectorTextContains('body', $task->getContent());
+        $this->assertSelectorTextContains('body', (string) $task->getTitle());
+        $this->assertSelectorTextContains('body', (string) $task->getContent());
     }
 
     public function testTaskCanBeToggledDone(): void
@@ -172,7 +174,7 @@ class TaskControllerTest extends WebTestCase
         // Then
         $this->assertResponseRedirects('/tasks');
         $crawler = $client->followRedirect();
-        $this->assertSelectorTextNotContains('body', $task->getTitle());
+        $this->assertSelectorTextNotContains('body', (string) $task->getTitle());
     }
 
     public function testAnonymousTaskCannotBeDeletedByOtherUser(): void
@@ -213,8 +215,8 @@ class TaskControllerTest extends WebTestCase
 
         // Then
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSelectorTextContains('body', $doneTask->getTitle());
-        $this->assertSelectorTextContains('body', $undoneTask->getTitle());
+        $this->assertSelectorTextContains('body', (string) $doneTask->getTitle());
+        $this->assertSelectorTextContains('body', (string) $undoneTask->getTitle());
     }
 
     public function testTaskPageWithFilterDoneOnlyShowsDoneTasks(): void
@@ -229,8 +231,8 @@ class TaskControllerTest extends WebTestCase
 
         // Then
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSelectorTextContains('body', $doneTask->getTitle());
-        $this->assertSelectorTextNotContains('body', $undoneTask->getTitle());
+        $this->assertSelectorTextContains('body', (string) $doneTask->getTitle());
+        $this->assertSelectorTextNotContains('body', (string) $undoneTask->getTitle());
     }
 
     public function testTaskPageWithFilterUndoneOnlyShowsUndoneTasks(): void
@@ -245,8 +247,8 @@ class TaskControllerTest extends WebTestCase
 
         // Then
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSelectorTextNotContains('body', $doneTask->getTitle());
-        $this->assertSelectorTextContains('body', $undoneTask->getTitle());
+        $this->assertSelectorTextNotContains('body', (string) $doneTask->getTitle());
+        $this->assertSelectorTextContains('body', (string) $undoneTask->getTitle());
     }
 
     public function testTaskListByUserPageOnlyShowsTasksByUser(): void
@@ -262,8 +264,8 @@ class TaskControllerTest extends WebTestCase
 
         // Then
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSelectorTextContains('body', $user1Task->getTitle());
-        $this->assertSelectorTextNotContains('body', $user2Task->getTitle());
+        $this->assertSelectorTextContains('body', (string) $user1Task->getTitle());
+        $this->assertSelectorTextNotContains('body', (string) $user2Task->getTitle());
     }
 
     public function testTaskListByUserWithFilterShowsDoneTasks(): void
@@ -278,8 +280,8 @@ class TaskControllerTest extends WebTestCase
 
         // Then
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSelectorTextContains('body', $doneTask->getTitle());
-        $this->assertSelectorTextNotContains('body', $undoneTask->getTitle());
+        $this->assertSelectorTextContains('body', (string) $doneTask->getTitle());
+        $this->assertSelectorTextNotContains('body', (string) $undoneTask->getTitle());
     }
 
     public function testDeletingATaskFromListByUserPageRedirectsToSamePage(): void

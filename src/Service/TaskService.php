@@ -5,16 +5,15 @@ namespace App\Service;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Repository\TaskRepository;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class TaskService
 {
     public function __construct(
-        private TaskRepository $taskRepository,
-        private EntityManagerInterface $entityManager,
-        private Security $security,
+        private readonly TaskRepository $taskRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly Security $security,
     ) {
     }
 

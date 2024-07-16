@@ -29,6 +29,11 @@ trait ClientTrait
     {
         $client = $this->getUnauthenticatedClient($followRedirects);
         $user = $this->getUser($username);
+
+        if (null === $user) {
+            throw new \RuntimeException(sprintf('User "%s" not found.', htmlspecialchars($username)));
+        }
+
         $client->loginUser($user);
 
         return [$client, $user];
@@ -38,7 +43,13 @@ trait ClientTrait
     {
         if (null === $this->adminClient) {
             $this->adminClient = $this->getUnauthenticatedClient($followRedirects);
-            $this->adminClient->loginUser($this->getUser('Admin'));
+            $adminUser = $this->getUser('Admin');
+
+            if (null === $adminUser) {
+                throw new \RuntimeException('Admin user not found.');
+            }
+
+            $this->adminClient->loginUser($adminUser);
         }
 
         return $this->adminClient;

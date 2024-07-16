@@ -6,7 +6,6 @@ use App\Entity\Task;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Generator;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
@@ -14,7 +13,6 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
  */
 class AppFixtures extends Fixture
 {
-
     public function __construct(private UserPasswordHasherInterface $passwordHasher)
     {
     }
@@ -23,7 +21,7 @@ class AppFixtures extends Fixture
     {
         foreach ($this->generateUsers() as $user) {
             $manager->persist($user);
-            $this->setReference($user->getUsername(), $user);
+            $this->setReference((string) $user->getUsername(), $user);
         }
 
         foreach ($this->generateTasks() as $task) {
@@ -34,7 +32,7 @@ class AppFixtures extends Fixture
     }
 
     /**
-     * @return Generator<User>
+     * @return \Generator<int, User>
      */
     private function generateUsers(): \Generator
     {
@@ -56,7 +54,7 @@ class AppFixtures extends Fixture
     }
 
     /**
-     * @return Generator<Task>
+     * @return \Generator<int, Task>
      */
     private function generateTasks(): \Generator
     {
@@ -73,7 +71,9 @@ class AppFixtures extends Fixture
                 ->setIsDone((bool) rand(0, 1));
 
             if ($userId = rand(0, 2)) {
-                $task->setAuthor($this->getReference('User' . $userId));
+                /** @var ?User */
+                $author = $this->getReference('User' . $userId);
+                $task->setAuthor($author);
             }
 
             yield $task;

@@ -46,21 +46,49 @@ final class TaskVoter extends Voter
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case self::LIST:
-                return true;
+                return $this->canList($user);
 
             case self::CREATE:
-                return true;
+                return $this->canCreate($user);
 
             case self::EDIT:
-                return true;
+                /** @var Task $subject */
+                return $this->canEdit($user, $subject);
 
             case self::TOGGLE:
-                return true;
+                /** @var Task $subject */
+                return $this->canToggle($user, $subject);
 
             case self::DELETE:
-                return $user->isAdmin() || $user === $subject->getAuthor();
+                /** @var Task $subject */
+                return $this->canDelete($user, $subject);
         }
 
         throw new \LogicException('This code should not be reached!'); // @codeCoverageIgnore
+    }
+
+    private function canList(User $user): bool
+    {
+        return true;
+    }
+
+    private function canCreate(User $user): bool
+    {
+        return true;
+    }
+
+    private function canEdit(User $user, Task $task): bool
+    {
+        return true;
+    }
+
+    private function canToggle(User $user, Task $task): bool
+    {
+        return true;
+    }
+
+    private function canDelete(User $user, Task $task): bool
+    {
+        return $user->isAdmin() || $user === $task->getAuthor();
     }
 }
