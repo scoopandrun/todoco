@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block header_img %}<img class="w-100" src="{{ asset('img/todolist_content.jpg') }}" alt="todo list">{% endblock %}
+{% block header_img %}{% endblock %}
 
 {% block body %}
     <turbo-frame id="tasks">
-        <div class="d-flex gap-1 mb-3">
+        <div class="d-flex gap-1 mb-3 flex-column flex-md-row">
             <a href="{{ path('task.list') }}" class="btn btn-success" data-turbo-frame="tasks">Consulter la liste des tâches</a>
             <a href="{{ path('task.list') }}?done=0" class="btn btn-info" data-turbo-frame="tasks">Consulter la liste des tâches à faire</a>
             <a href="{{ path('task.list') }}?done=1" class="btn btn-secondary" data-turbo-frame="tasks">Consulter la liste des tâches terminées</a>
