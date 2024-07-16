@@ -31,7 +31,7 @@ trait ClientTrait
         $user = $this->getUser($username);
 
         if (null === $user) {
-            throw new \RuntimeException(sprintf('User "%s" not found.', $username));
+            throw new \RuntimeException("User \"{$username}\" not found.");
         }
 
         $client->loginUser($user);
