@@ -18,7 +18,9 @@ use Symfony\UX\Turbo\TurboBundle;
 #[CoversClass(TaskVoter::class)]
 class TaskControllerTest extends WebTestCase
 {
-    use ClientTrait, TasksTrait, UsersTrait;
+    use ClientTrait;
+    use TasksTrait;
+    use UsersTrait;
 
     public function testTasksPageIsUp(): void
     {

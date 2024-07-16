@@ -9,7 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 #[CoversClass(SecurityController::class)]
 class SecurityControllerTest extends WebTestCase
 {
-    use ClientTrait, UsersTrait;
+    use ClientTrait;
+    use UsersTrait;
 
     public function testLoginPageReturns200(): void
     {
